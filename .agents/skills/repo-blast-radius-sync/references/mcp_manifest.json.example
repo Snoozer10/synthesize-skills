@@ -1,0 +1,86 @@
+{
+  "mcp_version": "1.0.0",
+  "client_name": "repo-blast-radius-client",
+  "tools": [
+    {
+      "name": "build_registry",
+      "description": "Deterministic AST parser to re-compile repo-wide dependencies and save state registry caches.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "root": {
+            "type": "string",
+            "description": "Relative path of repository root to analyze."
+          }
+        }
+      }
+    },
+    {
+      "name": "blast_radius",
+      "description": "Pre-flight inquiry checking the blast-radius checklist (Callers, Docs, Tests) of a file before editing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "Relative target file path to trace."
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Optional symbol to narrow caller usage search."
+          },
+          "json": {
+            "type": "boolean",
+            "description": "Enable to receive clean structured JSON outputs."
+          }
+        },
+        "required": ["target"]
+      }
+    },
+    {
+      "name": "verify_parity",
+      "description": "Hard Gate verifier checking dirty/staged workspace status against compiled blast radius definitions. Returns exit 0 on full compliance, exit 1 on orphaned edits.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "strict": {
+            "type": "boolean",
+            "description": "Set to true to enforce strict caller interface and configuration verification."
+          },
+          "staged_only": {
+            "type": "boolean",
+            "description": "Verify only files staged in the active git index."
+          }
+        }
+      }
+    },
+    {
+      "name": "draft_doc_updates",
+      "description": "Dynamic documentation patch generator that updates Markdown manuals with code signature changes parsed from git diffs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "target_doc": {
+            "type": "string",
+            "description": "Relative path of target Markdown file to append changes."
+          }
+        },
+        "required": ["target_doc"]
+      }
+    },
+    {
+      "name": "append_ledger",
+      "description": "Automated ledger manager to generate and write transactional records to .agent/ledger.md summarizing code updates.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "objective": {
+            "type": "string",
+            "description": "Short explanation outlining the target objective of the transaction."
+          }
+        },
+        "required": ["objective"]
+      }
+    }
+  ]
+}
