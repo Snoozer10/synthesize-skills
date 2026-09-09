@@ -60,6 +60,6 @@ python .agents/skills/repo-blast-radius-sync/scripts/dashboard.py --port 8765 --
 - Contributing: `docs/CONTRIBUTING.md`
 - Changelog: `CHANGELOG.md`
 <!-- release-sync:start -->
-Version: 0.1.2
+Version: 1.0.0
 <!-- release-sync:end -->
 

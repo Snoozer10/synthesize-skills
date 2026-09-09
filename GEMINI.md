@@ -1,6 +1,6 @@
 ---
 project_name: "synthesize-skills"
-version: "0.1.2"
+version: "1.0.0"
 tech_stack:
   - "python"
   - "powershell"
