@@ -1,5 +1,5 @@
 ---
-project_name: "creating-ai-agent-skills"
+project_name: "synthesize-skills"
 version: "0.1.2"
 tech_stack:
   - "python"
@@ -25,14 +25,14 @@ last_indexed: "2026-09-09"
 generator: "gemini-context-engineer/v4.0.0"
 ---
 
-# Project Context: creating-ai-agent-skills
+# Project Context: synthesize-skills
 
 ## 🎯 Project Overview
 Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are SKILL.md files with YAML frontmatter, validated by `scripts/validate.py`, and installed to host directories (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
 
 ## 🏗️ Architecture & Component Mapping
 ```
-creating-ai-agent-skills/
+synthesize-skills/
 ├── .agents/skills/       # canonical skills (SSOT)
 ├── templates/            # SKILL.md starter template
 ├── scripts/              # validate.py, manifest.py

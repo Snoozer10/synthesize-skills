@@ -38,7 +38,7 @@ Usage:
   repo-sync --help
 
 Examples:
-  npx @snoozer/creating-ai-agent-skills dashboard --port 8765 --open
+  npx @snoozer10/synthesize-skills dashboard --port 8765 --open
   repo-sync dashboard --port 0 --once
   repo-sync dashboard --watch
 `);

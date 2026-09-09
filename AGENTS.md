@@ -50,12 +50,12 @@ Common commands:
 WSL note: if `runpane doctor --json` cannot find `/tmp/pane-daemon.../daemon.sock` or `runpane` resolves to a broken Windows shim, Pane may be running on Windows. Try `powershell.exe -NoProfile -Command 'Set-Location $env:TEMP; runpane doctor --json'`, then create Panes through the same PowerShell form using the saved WSL repo name or id. Use `runpane agents doctor --agent <agent> --repo <selector> --json` to diagnose the repo environment Pane will actually use.
 <!-- pane-agent-context:end -->
 
-# AGENTS — Creating AI-Agent Skills
+# AGENTS — synthesize-skills
 
 ## Repo truth
 - `.agents/skills/` is SSOT (currently `gemini-context-engineer`, `repo-blast-radius-sync`). `templates/skill-template/` is starter (not installed). `scripts/manifest.py` maps `.agents` → `.claude/.opencode/.gemini`. `install.ps1`/`install.sh` are copy-only (SHA256 + `.bak`); no transforms.
 - `Research and docs/` and `The Created Skills/` are read-only. CI watches only `.agents/skills/**`, `templates/**`, `scripts/**` — but `scripts/validate.py` discovers via `rglob` excluding only `references/scripts/__pycache__/.git/node_modules`, so `The Created Skills/**/SKILL.md` *is* still checked locally.
-- `opencode.json: default_agent=plan`. `VERSION=0.1.1` (keep in sync via `scripts/release_sync.py`). No `pip`/`npm` — scripts are stdlib-only (enforced in `GEMINI.md`).
+- `opencode.json: default_agent=plan`. `VERSION=0.1.2` (keep in sync via `scripts/release_sync.py`). No `pip`/`npm` — scripts are stdlib-only (enforced in `GEMINI.md`).
 
 ## Commands
 ```powershell

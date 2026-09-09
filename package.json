@@ -1,5 +1,5 @@
 {
-  "name": "@snoozer/creating-ai-agent-skills",
+  "name": "@snoozer10/synthesize-skills",
   "version": "0.1.2",
   "description": "Use when authoring or installing reusable AI-agent skills — validated SKILL.md + blast-radius parity gate + live dashboard",
   "license": "MIT",
@@ -43,7 +43,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/snoozer/creating-ai-agent-skills.git"
+    "url": "https://github.com/Snoozer10/synthesize-skills.git"
   },
   "publishConfig": {
     "access": "public",

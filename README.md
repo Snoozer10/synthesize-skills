@@ -1,4 +1,4 @@
-# Creating AI-Agent Skills
+# synthesize-skills
 
 Repo for authoring, validating, and installing reusable AI-agent skills.
 
@@ -34,17 +34,20 @@ Repo for authoring, validating, and installing reusable AI-agent skills.
 Install `repo-blast-radius-sync` in any project:
 
 ```bash
-npx skills add repo-blast-radius-sync
-# or
-ux add repo-blast-radius-sync
+npx --package @snoozer10/synthesize-skills repo-sync add repo-blast-radius-sync
+# or after global install
+npm i -g @snoozer10/synthesize-skills
+repo-sync add repo-blast-radius-sync
 # or manual
-git clone https://github.com/your-org/creating-ai-agent-skills
+git clone https://github.com/Snoozer10/synthesize-skills
 python scripts/validate.py && python scripts/manifest.py && install.ps1 -Force  # or bash install.sh --force
 ```
 
 Live dashboard (human + agent):
 
 ```bash
+npx --package @snoozer10/synthesize-skills repo-sync dashboard --port 8765 --open
+# or direct
 python .agents/skills/repo-blast-radius-sync/scripts/dashboard.py --port 8765 --once --json .agent/dashboard.json
 # human: open http://127.0.0.1:8765
 # agent: curl http://127.0.0.1:8765/api/status  or  cat .agent/dashboard.json | python -m json.tool
