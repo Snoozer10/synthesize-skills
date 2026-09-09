@@ -1,0 +1,66 @@
+[
+  {
+    "id": "feature_addition_cli_flag",
+    "prompt": "Add a new '--resolution' CLI flag to scripts/pipeline.py to control image output format. Ensure you synchronize the API documentation and test suites to prevent orphaned edits.",
+    "modified_target": "scripts/pipeline.py",
+    "expected_coupled_docs": [
+      "docs/pipeline.md"
+    ],
+    "expected_coupled_callers": [],
+    "pass_criteria": "verify_parity_exit==0 && staged ⊇ GOVERNING_DOCS∪TEST_SUITES && CLI argument '--resolution' is parsed by scripts/pipeline.py, the updated flag behavior is documented in docs/pipeline.md, and test cases exist asserting flag validation in tests/test_pipeline.py."
+  },
+  {
+    "id": "breaking_api_signature_refactor",
+    "prompt": "Refactor 'process_transaction' in src/payments/processor.py to rename the parameter 'routing' to 'destination_routing'. Ensure all upstream callers and reference guides are fully synchronized.",
+    "modified_target": "src/payments/processor.py",
+    "expected_coupled_docs": [
+      "docs/api_reference.md"
+    ],
+    "expected_coupled_callers": [
+      "src/app.py"
+    ],
+    "pass_criteria": "verify_parity_exit==0 && staged ⊇ GOVERNING_DOCS∪TEST_SUITES && method signature in src/payments/processor.py is updated, all imports/calls to it in src/app.py are synchronized, and docs/api_reference.md is updated to reflect the renamed routing parameter."
+  },
+  {
+    "id": "config_schema_update",
+    "prompt": "Add a new 'MAX_RETRY_ATTEMPTS' configuration parameter to configs/settings.json. Document this configuration parameter in the main repository README.md.",
+    "modified_target": "configs/settings.json",
+    "expected_coupled_docs": [
+      "README.md"
+    ],
+    "expected_coupled_callers": [],
+    "pass_criteria": "verify_parity_exit==0 && staged ⊇ GOVERNING_DOCS∪TEST_SUITES && configs/settings.json contains the 'MAX_RETRY_ATTEMPTS' integer variable, and README.md contains a markdown section documenting its purpose and default value."
+  },
+  {
+    "id": "deleted_caller",
+    "prompt": "Delete src/app.py caller of process_transaction in src/payments/processor.py without updating registry. Ensure parity gate detects missing caller or docs.",
+    "modified_target": "src/payments/processor.py",
+    "expected_coupled_docs": [
+      "docs/api_reference.md"
+    ],
+    "expected_coupled_callers": [
+      "src/app.py"
+    ],
+    "pass_criteria": "verify_parity_exit==0 && staged ⊇ GOVERNING_DOCS∪TEST_SUITES — if caller deleted, verify_parity must WARN/ERR appropriately and staged set must reflect scope change"
+  },
+  {
+    "id": "schema_key_rename",
+    "prompt": "Rename MAX_RETRY_ATTEMPTS to MAX_RETRIES in configs/settings.json and update all references. Document rename in README.md.",
+    "modified_target": "configs/settings.json",
+    "expected_coupled_docs": [
+      "README.md"
+    ],
+    "expected_coupled_callers": [],
+    "pass_criteria": "verify_parity_exit==0 && staged ⊇ GOVERNING_DOCS∪TEST_SUITES && configs/settings.json contains MAX_RETRIES not MAX_RETRY_ATTEMPTS, README documents new key"
+  },
+  {
+    "id": "todo_deferral_trap",
+    "prompt": "Add TODO deferral comment '# TODO: update docs later' in src/payments/processor.py instead of syncing docs/api_reference.md. Ensure parity gate blocks orphan.",
+    "modified_target": "src/payments/processor.py",
+    "expected_coupled_docs": [
+      "docs/api_reference.md"
+    ],
+    "expected_coupled_callers": [],
+    "pass_criteria": "verify_parity_exit==1 && staged missing GOVERNING_DOCS — TODO does not satisfy gate, heuristic WARN emitted"
+  }
+]
