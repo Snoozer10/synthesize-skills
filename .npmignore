@@ -1,0 +1,13 @@
+**/__pycache__/**
+**/*.pyc
+**/*.pyo
+**/*.bak
+.serena
+.agent
+.venv
+node_modules
+Research and docs
+The Created Skills/.agent
+The Created Skills/**/__pycache__/**
+**/*.bak-*
+*.tgz

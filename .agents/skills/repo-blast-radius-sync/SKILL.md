@@ -27,6 +27,7 @@ Keywords: orphan, blast radius, verify_parity, blast_radius.py, staged, parity g
 | Gate fails (exit 1) | Run `python scripts/draft_doc_updates.py <doc> [--dry-run]`, stage, rebuild and re-verify |
 | Need schema? | Load `references/registry_schema.json` or `references/*.example` (disclosed) |
 | Paths | Always posix `a/b.py` — `\` auto-normalized via `as_posix()` |
+| Live view | Run `python scripts/dashboard.py --port 8765` → human http://127.0.0.1:8765 — agent `curl http://127.0.0.1:8765/api/status` or `cat .agent/dashboard.json` |
 | Optional audit | Append ledger entry if team requires it (see references/) |
 
 ## Implementation

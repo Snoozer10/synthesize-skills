@@ -52,6 +52,12 @@ def version_ignored(root):
 def read_version(root):
     return (root/"VERSION").read_text(encoding="utf-8").strip() if (root/"VERSION").exists() else ""
 
+def read_package_version(root):
+    p=root/"package.json"
+    if not p.exists(): return ""
+    try: return json.loads(p.read_text(encoding="utf-8")).get("version","")
+    except: return ""
+
 def read_gemini(root):
     p=root/"GEMINI.md"
     t=p.read_text(encoding="utf-8") if p.exists() else ""
@@ -129,8 +135,11 @@ def do_check(root, gdir):
         msgs.append("drift: VERSION is gitignored (git check-ignore -q) — remove from .gitignore"); drift=True
     v=read_version(root)
     _, gv, li, rules = read_gemini(root)
+    pv=read_package_version(root)
     if v and gv and v!=gv:
         msgs.append(f"drift: VERSION {v!r} != GEMINI.md version {gv!r}"); drift=True
+    if v and pv and v!=pv:
+        msgs.append(f"drift: VERSION {v!r} != package.json version {pv!r}"); drift=True
     # semver sanity: ensure version is valid
     try: semver_parse(v)
     except Exception as e: msgs.append(f"drift: VERSION semver invalid: {e}"); drift=True
@@ -201,6 +210,16 @@ def do_bump(root, gdir, kind, allow_auto_patch, apply):
             new_gem=re.sub(r'^(last_indexed:\s*)"[^"]+"', rf'\1"{today}"', new_gem, flags=re.MULTILINE)
         else:
             new_gem=new_gem.replace("generator:", f'last_indexed: "{today}"\ngenerator:')
+    # prepare package.json bump
+    pkg_p=root/"package.json"
+    pkg_txt=pkg_p.read_text(encoding="utf-8") if pkg_p.exists() else ""
+    new_pkg=pkg_txt
+    if pkg_p.exists():
+        try:
+            pj=json.loads(pkg_txt)
+            pj["version"]=new
+            new_pkg=json.dumps(pj, indent=2)+"\n"
+        except: pass
     # indexer run
     run_indexer(root)
     # README region sync if markers exist
@@ -211,14 +230,16 @@ def do_bump(root, gdir, kind, allow_auto_patch, apply):
         region=f"<!-- release-sync:start -->\nVersion: {new}\n<!-- release-sync:end -->"
         new_readme=re.sub(r"<!-- release-sync:start -->.*?<!-- release-sync:end -->", region, readme_txt, flags=re.DOTALL)
     # prepare staging via atomic writes to git-dir tmp then mv
-    # we stage 4 files: VERSION, GEMINI.md, CHANGELOG.md, README.md (if changed)
+    # we stage 5 files: VERSION, GEMINI.md, package.json, CHANGELOG.md, README.md (if changed)
     # use atomic_write directly to final destination with fsync; rollback on fail
     origs={}
-    for p in [root/"VERSION", root/"GEMINI.md", root/"CHANGELOG.md", readme_p]:
+    for p in [root/"VERSION", root/"GEMINI.md", pkg_p, root/"CHANGELOG.md", readme_p]:
         if p.exists(): origs[p]=p.read_bytes()
     try:
         atomic_write(root/"VERSION", new+"\n", gdir)
         atomic_write(root/"GEMINI.md", new_gem, gdir)
+        if pkg_p.exists() and new_pkg!=pkg_txt:
+            atomic_write(pkg_p, new_pkg, gdir)
         if new_readme!=readme_txt and readme_p.exists():
             atomic_write(readme_p, new_readme, gdir)
         # CHANGELOG not auto-edited except ensure Unreleased exists

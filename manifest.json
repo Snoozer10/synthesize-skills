@@ -1,0 +1,14 @@
+{
+  "gemini-context-engineer": {
+    "agents": ".agents/skills/gemini-context-engineer",
+    "claude": ".claude/skills/gemini-context-engineer",
+    "opencode": ".opencode/skills/gemini-context-engineer",
+    "gemini": ".gemini/skills/gemini-context-engineer"
+  },
+  "repo-blast-radius-sync": {
+    "agents": ".agents/skills/repo-blast-radius-sync",
+    "claude": ".claude/skills/repo-blast-radius-sync",
+    "opencode": ".opencode/skills/repo-blast-radius-sync",
+    "gemini": ".gemini/skills/repo-blast-radius-sync"
+  }
+}

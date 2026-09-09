@@ -29,6 +29,28 @@ Repo for authoring, validating, and installing reusable AI-agent skills.
   - `install.ps1 -Force         # apply`
   - `bash install.sh --force    # apply`
 
+## Marketplace
+
+Install `repo-blast-radius-sync` in any project:
+
+```bash
+npx skills add repo-blast-radius-sync
+# or
+ux add repo-blast-radius-sync
+# or manual
+git clone https://github.com/your-org/creating-ai-agent-skills
+python scripts/validate.py && python scripts/manifest.py && install.ps1 -Force  # or bash install.sh --force
+```
+
+Live dashboard (human + agent):
+
+```bash
+python .agents/skills/repo-blast-radius-sync/scripts/dashboard.py --port 8765 --once --json .agent/dashboard.json
+# human: open http://127.0.0.1:8765
+# agent: curl http://127.0.0.1:8765/api/status  or  cat .agent/dashboard.json | python -m json.tool
+python .agents/skills/repo-blast-radius-sync/scripts/dashboard.py --port 8765 --watch  # poll 2s
+```
+
 ## Docs
 
 - Workflow: `docs/WORKFLOW.md`

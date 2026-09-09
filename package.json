@@ -1,0 +1,56 @@
+{
+  "name": "@snoozer/creating-ai-agent-skills",
+  "version": "0.1.2",
+  "description": "Use when authoring or installing reusable AI-agent skills — validated SKILL.md + blast-radius parity gate + live dashboard",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "repo-sync": "./bin/repo-sync.js",
+    "skills": "./bin/repo-sync.js",
+    "ai-skills": "./bin/repo-sync.js"
+  },
+  "files": [
+    "bin/",
+    ".agents/skills/",
+    "templates/",
+    "scripts/",
+    "install.ps1",
+    "install.sh",
+    "manifest.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "VERSION",
+    "!**/__pycache__/**",
+    "!**/*.pyc",
+    "!**/*.pyo",
+    "!**/*.bak",
+    "!**/.agent/**"
+  ],
+  "engines": {
+    "node": ">=18",
+    "python": ">=3.11"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "skills",
+    "opencode",
+    "claude",
+    "gemini",
+    "blast-radius",
+    "dashboard"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snoozer/creating-ai-agent-skills.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepack": "python scripts/validate.py && python scripts/manifest.py",
+    "test": "python scripts/validate.py && python scripts/release_sync.py --check && python tests/test_blast_radius_parity.py -v"
+  }
+}
