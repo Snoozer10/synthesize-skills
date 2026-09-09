@@ -35,6 +35,6 @@ Repo for authoring, validating, and installing reusable AI-agent skills.
 - Contributing: `docs/CONTRIBUTING.md`
 - Changelog: `CHANGELOG.md`
 <!-- release-sync:start -->
-Version: 0.1.1
+Version: 0.1.2
 <!-- release-sync:end -->
 
