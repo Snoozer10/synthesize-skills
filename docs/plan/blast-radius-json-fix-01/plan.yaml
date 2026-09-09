@@ -1,0 +1,93 @@
+plan_id: blast-radius-json-fix-01
+status: pending
+tldr: Fix 5 extension mismatches via git mv to canonical .json/.py, sweep stale refs, and prove validator PASS with no leftover .md duplicates.
+created_at: 2026-09-09T00:00:00Z
+created_by: gem-planner
+revision: 1
+replan_count: 0
+planner_revision_used: false
+
+baseline:
+  objective: Fix The Created Skills/repo-blast-radius-sync files that are markdown/python-JSON with wrong extensions to expected .json/.py per Research topology and SKILL.md refs - ensure validator passes.
+  acceptance_criteria:
+    - "assets/mcp_manifest.md (JSON) -> assets/mcp_manifest.json"
+    - "assets/sample_registry.md (JSON) -> assets/sample_registry.json"
+    - "references/registry_schema.md (JSON) -> references/registry_schema.json"
+    - "evals/eval_scenarios.md (JSON) -> evals/eval_scenarios.json"
+    - "evals/eval_orphaned_edit.md (Python) -> evals/eval_orphaned_edit.py"
+    - "No leftover .md duplicates, all internal references updated, python/python validate PASS"
+  captured_at: 2026-09-09T00:00:00Z
+
+decisions:
+  - "Canonical topology is Research and docs/Repo Blast Radius Sync/others/README.md:46-48 (assets/mcp_manifest.json, sample_registry.json) and 55-56 (references/registry_schema.json) and 52-53 (evals/eval_scenarios.json, eval_orphaned_edit.py) plus SKILL.md frontmatter mcp-manifest: assets/mcp_manifest.json - .md variants are mismatches, not alt locations."
+  - "Rename is byte-identical move (no content transform) via git mv to preserve history; .md backups not kept per task_clarifications - no copy, only move; fallback to filesystem Move-Item if file not git-tracked."
+  - "Scripts/*.md (14 Python/bash-in-.md like blast_radius.md, build_registry.md, verify_parity.md) are out-of-scope for this fix - explicitly excluded per YAGNI; touching them would violate minimal diff and acceptance_criteria which enumerates only 5 files. Justify untagged exclusion: not in baseline."
+  - "Internal reference sweep expected to be no-op: SKILL.md:7 already points to assets/mcp_manifest.json, SKILL.md:55 points to references/registry_schema.json, release scripts and README-V2 already expect .json/.py; still require exhaustive rg sweep for stale literals (mcp_manifest.md, sample_registry.md, registry_schema.md, eval_scenarios.md, eval_orphaned_edit.md) and patch only if hits found - zero-patch path is valid PASS."
+  - "Validation chain: stdlib json.loads for 4 JSON files + ast.parse/py_compile for eval_orphaned_edit.py + python scripts/validate.py (root validator) must all PASS; root validator currently PASS with mismatches, so fix must not regress it - no new frontmatter/word-count changes."
+  - "Scope boundary: do not edit .agent/registry.json, install.ps1/sh, Dockerfile, or add dependencies; reuse stdlib + existing scripts/validate.py and The Created Skills/repo-blast-radius-sync/scripts/validate_memory_schema.py if needed."
+
+assumptions:
+  - "Files contain valid JSON/Python with wrong .md extensions - proven via python: json.loads OK for mcp_manifest.md, sample_registry.md, registry_schema.md, eval_scenarios.md and ast.parse OK for eval_orphaned_edit.md - so rename alone suffices, no syntax repair."
+  - "No leftover .md duplicates desired - after git mv, Test-Path on old .md paths must be False, Get-ChildItem confirms only .json/.py remain."
+  - "Git is available and repo is git-controlled; git mv works for tracked files - if untracked, plain mv still satisfies acceptance."
+  - "Stdlib validation (json, ast, py_compile) plus scripts/validate.py is sufficient; no need to run full build_registry/verify_parity harness for this extension fix - harness expects .py scripts but eval harness path is independent."
+  - "No new internal references need updating beyond sweep - exhaustive search already showed zero hits for stale .md literals in skill, confirming minimal diff."
+
+tasks:
+  - id: R1-rename-extensions
+    title: Atomic rename 5 mismatched extensions to canonical .json/.py
+    description: "reuse: stdlib + git mv (rung 3 stdlib, rung 5 installed git). Atomic byte-identical moves: assets/mcp_manifest.md -> assets/mcp_manifest.json, assets/sample_registry.md -> assets/sample_registry.json, references/registry_schema.md -> references/registry_schema.json, evals/eval_scenarios.md -> evals/eval_scenarios.json, evals/eval_orphaned_edit.md -> evals/eval_orphaned_edit.py via git mv with filesystem fallback. YAGNI: do not touch scripts/*.md (14 Python-in-.md) - out of scope per baseline, explicitly justified."
+    wave: 1
+    agent: gem-implementer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "assets/mcp_manifest.json exists and parses via python json.load; assets/mcp_manifest.md does not exist"
+      - "assets/sample_registry.json exists and parses as JSON; assets/sample_registry.md does not exist"
+      - "references/registry_schema.json exists and parses as JSON; references/registry_schema.md does not exist"
+      - "evals/eval_scenarios.json exists and parses as JSON; evals/eval_scenarios.md does not exist"
+      - "evals/eval_orphaned_edit.py exists and parses via ast.parse and py_compile; evals/eval_orphaned_edit.md does not exist"
+      - "Bytes identical pre/post rename (no content edits, no .md backups kept) and git status shows renames (or moves if untracked)"
+    handoff:
+      constraints:
+        - "Only touch the 5 listed paths under The Created Skills/repo-blast-radius-sync; do not edit scripts/*.md, .agent/, install scripts, or docs/plan/* beyond plan itself"
+        - "Use git mv when tracked, preserve history; no content transform; delete old .md without backup per clarifications"
+        - "ASCII only, no new deps, report dir listing before/after as evidence"
+      relevant_context:
+        - "The Created Skills/repo-blast-radius-sync/assets/mcp_manifest.md"
+        - "The Created Skills/repo-blast-radius-sync/assets/sample_registry.md"
+        - "The Created Skills/repo-blast-radius-sync/references/registry_schema.md"
+        - "The Created Skills/repo-blast-radius-sync/evals/eval_scenarios.md"
+        - "The Created Skills/repo-blast-radius-sync/evals/eval_orphaned_edit.md"
+        - "Research and docs/Repo Blast Radius Sync/others/README.md:46-48,52-56"
+        - "The Created Skills/repo-blast-radius-sync/SKILL.md:7,55"
+
+  - id: V1-sweep-validate
+    title: Sweep stale .md refs, validate JSON/Python syntax, and prove validator PASS
+    description: "reuse: stdlib json/ast/py_compile + installed scripts/validate.py (rung 3 stdlib, rung 5 installed dep). Sweep all files under The Created Skills/repo-blast-radius-sync for stale literals mcp_manifest.md, sample_registry.md, registry_schema.md, eval_scenarios.md, eval_orphaned_edit.md; patch in-place only if hits (expected zero). Then run json.loads on 4 JSON files, py_compile on .py, and python scripts/validate.py for repo PASS with no leftover .md duplicates. new: minimal literal replace if sweep finds hits."
+    wave: 2
+    depends_on: [R1-rename-extensions]
+    agent: gem-implementer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "Exhaustive grep for stale .md literals returns zero hits (or all patched hits verified) - no references to old .md extensions remain"
+      - "python -m json.tool validates assets/mcp_manifest.json, assets/sample_registry.json, references/registry_schema.json, evals/eval_scenarios.json without error"
+      - "python -m py_compile and ast.parse validate evals/eval_orphaned_edit.py without error"
+      - "No leftover .md duplicates: dir listing shows 0 files at old .md paths, 5 files at new .json/.py paths"
+      - "python scripts/validate.py exits 0 and prints PASS: The Created Skills/repo-blast-radius-sync (zero ERROR lines, warnings acceptable if pre-existing)"
+    handoff:
+      constraints:
+        - "Read sweep is exhaustive; write only if stale refs found - prefer zero-patch confirmation over speculative edits"
+        - "Stdlib only for syntax checks; reuse existing validator, do not add test frameworks or deps"
+        - "Report grep output, json/py_compile output, validator output, and git diff --stat showing only 5 renames plus any reference patches"
+        - "Do not expand scope to scripts/*.md Python files or .agent/registry.json"
+      relevant_context:
+        - "The Created Skills/repo-blast-radius-sync/assets/mcp_manifest.json"
+        - "The Created Skills/repo-blast-radius-sync/assets/sample_registry.json"
+        - "The Created Skills/repo-blast-radius-sync/references/registry_schema.json"
+        - "The Created Skills/repo-blast-radius-sync/evals/eval_scenarios.json"
+        - "The Created Skills/repo-blast-radius-sync/evals/eval_orphaned_edit.py"
+        - "The Created Skills/repo-blast-radius-sync/SKILL.md"
+        - "scripts/validate.py"
+        - "The Created Skills/repo-blast-radius-sync/scripts/validate_memory_schema.py"

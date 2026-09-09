@@ -1,0 +1,168 @@
+plan_id: repo-blast-radius-sync-proofread-01
+status: pending
+tldr: Proofread repo-blast-radius-sync SKILL.md against Research docs - fix frontmatter/description/keywords/red-flags, trim to <500 words with one runnable example, keep validate.py PASS minimal diff.
+created_at: 2026-09-08T00:00:00Z
+created_by: gem-planner
+revision: 1
+replan_count: 0
+planner_revision_used: false
+
+baseline:
+  objective: Proofread and adjust The Created Skills/repo-blast-radius-sync skill against Research and docs/Repo Blast Radius Sync - fix frontmatter/naming/description/keywords/red-flags/token mistakes, align to WORKFLOW.md compliance, pass validate.py, minimal diff.
+  acceptance_criteria:
+    - "SKILL.md name: repo-blast-radius-sync matches directory"
+    - "description starts with Use when and searchable keywords (error/symptom/tool)"
+    - "frontmatter complete, body <500 words, no @-links, one runnable example, no workflow-summary violation"
+    - "skill content aligns to Research docs (no hallucinations, no missing steps)"
+    - "python scripts/validate.py PASS zero errors (warnings acceptable if documented)"
+    - "python .agents/skills/gemini-context-engineer/scripts/validate_gemini_md.py unaffected if touches GEMINI.md (not planned)"
+    - "minimal diff, no change to install.ps1/sh unless needed"
+  captured_at: 2026-09-08T00:00:00Z
+
+decisions:
+  - "Canonical source is Research and docs/Repo Blast Radius Sync/Docs/Repo Blast Radius Sync and Parity Gate Protocol.md SKILL.md block (name/description/compatibility/allowed-tools/mcp fields) plus others/README.md and others/REPO_BLAST_RADIUS_SYNC_OPERATIONAL_GUIDE.md for workflow; deeper memory-tier docs (4-tier, BAM auditor, consolidation) are out-of-scope for SKILL.md body and treated as hallucinations if present."
+  - "Keep name: repo-blast-radius-sync unchanged - already matches dir; validator PASS on mismatch requires no rename."
+  - "Frontmatter allowed keys: name, description, compatibility, allowed-tools, mcp-compatible, mcp-manifest per canonical; drop license, metadata block, quoted true - minimal diff fix not template-only name+description."
+  - "Body budget <500 words forces deletion of invented sections 3-6 (Subagents, 4-Tier Memory, Cognitive Safety, Sanity Validation) - they belong in references/docs not SKILL.md; keep WORKFLOW.md structure: Overview, When to Use, Quick Reference, Implementation, Common Mistakes."
+  - "One runnable example only - keep verify_parity.py --strict gate check as canonical success/failure signal; other fences become text references or table rows."
+  - "Validate.py warnings (Use when, workflow-summary, keywords, @-links) must be cleared; errors must be zero - warnings documented only if justified, otherwise fixed."
+
+assumptions:
+  - "Research docs are truth; SKILL.md current citations like [Source: [NOTE-13] ...] and LaTeX invariant duplication are token bloat/hallucination to remove."
+  - "Word count counts body only (post-frontmatter); current 990 words must be halved - reviewer sub-agents will enforce delete over rewrite."
+  - "No GEMINI.md change planned; gemini-context-engineer validator is no-op gate."
+  - "No new deps or scripts; reuse scripts/validate.py, templates/skill-template/SKILL.md, docs/WORKFLOW.md."
+
+tasks:
+  - id: R1-research-diff
+    title: Verbatim diff Research vs SKILL.md — exact mistakes per file:line
+    description: "reuse: existing docs + stdlib (rg/read). Dispatch 2 sub-subagents for token isolation: (A) chunk Docs/* (~35 files) and (B) others/*, each outputs line-anchored diff. Parent merges. Tag YAGNI for any extra section not in canonical SKILL.md block."
+    wave: 1
+    agent: gem-reviewer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "Table of mismatches: frontmatter keys (license, metadata, quoted mcp-compatible), description not starting Use when, body hallucinations (Tier Memory/BAM/Sanity lines), word count 990>500, multiple runnable fences, missing Keywords line, citation bloat - each with SKILL.md:line and Research source:line"
+      - "Canonical SKILL.md block copied verbatim from Docs/Repo Blast Radius Sync and Parity Gate Protocol.md:1-111 as expected baseline"
+      - "No file edits in this task"
+    handoff:
+      constraints:
+        - "Read-only; do not edit SKILL.md"
+        - "Use sub-subagents for large Docs scan to avoid context overflow"
+        - "Output markdown table to docs/plan/repo-blast-radius-sync-proofread-01/research-diff.md"
+      relevant_context:
+        - The Created Skills/repo-blast-radius-sync/SKILL.md
+        - Research and docs/Repo Blast Radius Sync/Docs/Repo Blast Radius Sync and Parity Gate Protocol.md
+        - Research and docs/Repo Blast Radius Sync/others/README.md
+        - Research and docs/Repo Blast Radius Sync/others/REPO_BLAST_RADIUS_SYNC_OPERATIONAL_GUIDE.md
+        - templates/skill-template/SKILL.md
+
+  - id: R2-validate-audit
+    title: Validator and WORKFLOW compliance audit
+    description: "reuse: scripts/validate.py (stdlib). Run `python scripts/validate.py \"The Created Skills/repo-blast-radius-sync\"`, count body words/lines, check frontmatter <=1024 chars, body <500 lines, @-links, runnable fence count, workflow-summary regex. No new tooling."
+    wave: 1
+    agent: gem-reviewer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "Captured current validator output: 3 WARN (Use when, workflow-summary, keywords) + PASS, plus measured body 990 words / 97 lines / 674 frontmatter chars"
+      - "Checklist of WORKFLOW.md gates: RED/GREEN/REFACTOR not applicable to proofread but <500 words, bullets over prose, no @-links, one example max, frontmatter name+description - each marked pass/fail"
+      - "Findings merged into research-diff.md appendix"
+    handoff:
+      constraints:
+        - "Stdlib only; do not install deps"
+        - "Do not fix - audit only"
+      relevant_context:
+        - scripts/validate.py
+        - docs/WORKFLOW.md
+        - templates/skill-template/SKILL.md
+
+  - id: F1-fix-skill
+    title: Fix SKILL.md — frontmatter + trimmed body aligned to Research
+    description: "reuse: templates/skill-template/SKILL.md as skeleton + Research canonical block. Edit SKILL.md only. Fixes: description -> `Use when modifying, refactoring, adding features, or fixing bugs ...` plus keywords line; frontmatter drop license/metadata, fix mcp-compatible: true unquoted; body rewrite <500 words with sections Overview/When to Use/Quick Reference/Implementation/Common Mistakes, one runnable python or bash fence (verify_parity), Keywords line present, no @-links, no workflow-summary violation, bullets over prose. new: minimal prose rewrite."
+    wave: 2
+    depends_on: [R1-research-diff, R2-validate-audit]
+    agent: gem-documentation-writer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "SKILL.md name unchanged, description starts Use when and contains searchable terms (orphan, blast radius, verify_parity, commit blocked, staged)"
+      - "Frontmatter only allowed keys, raw <=1024 chars, passes NAME_RE"
+      - "Body <500 words and <500 lines, one runnable fence, contains Keywords: line, no @skills/ or @- links, no workflow-summary regex hit unless documented"
+      - "Content matches canonical 3-phase lifecycle (blast_radius -> cascading mutation -> verify_parity/draft_doc_updates) and Negative Constraints; no Tier Memory/BAM/ledger hallucination beyond canonical ledger mention"
+      - "python scripts/validate.py The Created Skills/repo-blast-radius-sync still PASS, warnings cleared or documented with reason"
+    handoff:
+      constraints:
+        - "Minimal diff: touch SKILL.md only; do not edit install_hooks.sh, release scripts, or GEMINI.md"
+        - "ASCII only, keep bullets, delete dont move bloat to comments"
+        - "Preserve scripts/blast_radius.py, build_registry.py, verify_parity.py, draft_doc_updates.py, append_ledger.py references per canonical"
+      relevant_context:
+        - The Created Skills/repo-blast-radius-sync/SKILL.md
+        - Research and docs/Repo Blast Radius Sync/Docs/Repo Blast Radius Sync and Parity Gate Protocol.md
+        - templates/skill-template/SKILL.md
+        - docs/WORKFLOW.md
+        - scripts/validate.py
+
+  - id: F2-verify-gate
+    title: Verify validate.py PASS and word-count gates post-fix
+    description: "reuse: scripts/validate.py + stdlib wc. Run validator on fixed SKILL.md, assert zero errors, capture remaining warnings justification; assert body words <500 and single runnable fence. One-liner checks."
+    wave: 2
+    depends_on: [F1-fix-skill]
+    agent: gem-implementer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "python scripts/validate.py The Created Skills/repo-blast-radius-sync exits 0 with PASS line"
+      - "Body word count <500 printed, runnable fence count ==1, no @-links found"
+      - "Evidence pasted into plan task handoff or research-diff.md"
+    handoff:
+      constraints:
+        - "Read-only verification; no further edits"
+        - "Fail task if any ERROR remains"
+      relevant_context:
+        - The Created Skills/repo-blast-radius-sync/SKILL.md
+        - scripts/validate.py
+
+  - id: V1-review-grill
+    title: Reviewer sub-agents grill plan and fixed SKILL.md for red-flags/token drift
+    description: "reuse: existing validators + manual checklist. Dispatch 2 parallel reviewer sub-agents: (A) red-flag/token audit (citation bloat, invented sections, LaTeX duplication, quote drift), (B) WORKFLOW.md + validate rules audit. Each outputs 5-line max grill. Parent merges and files `review.md`."
+    wave: 3
+    depends_on: [F2-verify-gate]
+    agent: gem-reviewer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "Reviewer A reports no hallucinations vs Research canonical, no extra deps, no workflow-summary violation"
+      - "Reviewer B confirms frontmatter completeness, Use when, Keywords, one example, <500 words, validate PASS"
+      - "Any findings are either fixed or listed as accepted warnings with reason"
+    handoff:
+      constraints:
+        - "Reviewers are read-only; do not edit SKILL.md"
+        - "Use sub-agents for isolated review to avoid parent bias"
+        - "Concise output - bullets, not prose"
+      relevant_context:
+        - The Created Skills/repo-blast-radius-sync/SKILL.md
+        - Research and docs/Repo Blast Radius Sync/Docs/Repo Blast Radius Sync and Parity Gate Protocol.md
+        - scripts/validate.py
+        - docs/WORKFLOW.md
+
+  - id: V2-final-checks
+    title: Final lint and scope guard — no unintended diffs
+    description: "reuse: git diff --stat + validate.py. Confirm only SKILL.md changed (allow docs/plan/*), no install.ps1/sh or scripts touched; re-run `python scripts/validate.py` full repo and `python .agents/skills/gemini-context-engineer/scripts/validate_gemini_md.py` if exists — unaffected. Stdlib only."
+    wave: 3
+    depends_on: [V1-review-grill]
+    agent: gem-implementer
+    status: pending
+    retries_used: 0
+    acceptance_criteria:
+      - "git diff --stat shows SKILL.md as only product change (+ plan docs)"
+      - "Full python scripts/validate.py PASS for repo-blast-radius-sync"
+      - "Gemini validator either PASS or not applicable - no regression"
+    handoff:
+      constraints:
+        - "Do not commit or push; report diff stat only"
+        - "Keep minimal diff principle - flag any extra file touches as blocker"
+      relevant_context:
+        - The Created Skills/repo-blast-radius-sync/SKILL.md
+        - scripts/validate.py
+        - .agents/skills/gemini-context-engineer/scripts/validate_gemini_md.py
