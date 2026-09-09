@@ -69,3 +69,5 @@ if __name__ == "__main__":
 - Using `# TODO: update documentation later` in code. Fix: update GOVERNING DOCS in same change.
 - Modifying or deleting `.agent/` or `scripts/` to bypass gate. Fix: keep gate intact, fix orphans.
 - Guessing doc patches manually. Fix: use `scripts/draft_doc_updates.py` from git diff.
+
+<!-- ci trigger: pip cache fix -->
