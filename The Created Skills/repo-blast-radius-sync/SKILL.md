@@ -1,6 +1,6 @@
 ---
 name: repo-blast-radius-sync
-description: Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync — detects blast radius and blocks orphaned commits
+description: Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync â€” detects blast radius and blocks orphaned commits
 ---
 
 # repo-blast-radius-sync
@@ -26,8 +26,8 @@ Keywords: orphan, blast radius, verify_parity, blast_radius.py, staged, parity g
 | Before commit | Run `python scripts/build_registry.py` then `python scripts/verify_parity.py --strict [--dry-run]` |
 | Gate fails (exit 1) | Run `python scripts/draft_doc_updates.py <doc> [--dry-run]`, stage, rebuild and re-verify |
 | Need schema? | Load `references/registry_schema.json` or `references/*.example` (disclosed) |
-| Paths | Always posix `a/b.py` — `\` auto-normalized via `as_posix()` |
-| Live view | Run `python scripts/dashboard.py --port 8765` → human http://127.0.0.1:8765 — agent `curl http://127.0.0.1:8765/api/status` or `cat .agent/dashboard.json` |
+| Paths | Always posix `a/b.py` â€” `\` auto-normalized via `as_posix()` |
+| Live view | Run `python scripts/dashboard.py --port 8765` â†’ human http://127.0.0.1:8765 â€” agent `curl http://127.0.0.1:8765/api/status` or `cat .agent/dashboard.json` |
 | Optional audit | Append ledger entry if team requires it (see references/) |
 
 ## Implementation
@@ -69,3 +69,4 @@ if __name__ == "__main__":
 - Using `# TODO: update documentation later` in code. Fix: update GOVERNING DOCS in same change.
 - Modifying or deleting `.agent/` or `scripts/` to bypass gate. Fix: keep gate intact, fix orphans.
 - Guessing doc patches manually. Fix: use `scripts/draft_doc_updates.py` from git diff.
+
