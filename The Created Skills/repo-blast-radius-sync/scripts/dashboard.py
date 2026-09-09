@@ -30,7 +30,11 @@ def collect_status(root: Path) -> dict:
             reg_mtime = reg.stat().st_mtime
             data = json.loads(reg.read_text(encoding="utf-8"))
             skipped = data.get("skipped", [])
-            max_src = max((p.stat().st_mtime for p in root.rglob("*.py") if p.is_file()), default=reg_mtime)
+            # ignore staging/research for perf
+            def _is_ignored(p: Path) -> bool:
+                s = p.as_posix()
+                return any(x in s for x in ["Research and docs", "The Created Skills", ".agent", ".serena", "__pycache__", ".git/"])
+            max_src = max((p.stat().st_mtime for p in root.rglob("*.py") if p.is_file() and not _is_ignored(p)), default=reg_mtime)
             fresh = max_src <= reg_mtime
     except Exception:
         fresh = False

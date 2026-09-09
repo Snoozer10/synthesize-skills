@@ -30,7 +30,6 @@ function printHelp() {
 Usage:
   repo-sync dashboard [--port 8765] [--open] [--once --json .agent/dashboard.json]
     Live view: human http://127.0.0.1:PORT  agent: curl /api/status or cat .agent/dashboard.json
-    Similar to: lean-ctx dashboard
 
   repo-sync add <skill>            copy .agents/skills/<skill> to consumer
   repo-sync validate [path]        python scripts/validate.py
@@ -38,7 +37,7 @@ Usage:
   repo-sync --help
 
 Examples:
-  npx @snoozer10/synthesize-skills dashboard --port 8765 --open
+  npx --package @snoozer10/synthesize-skills repo-sync dashboard --port 8765 --open
   repo-sync dashboard --port 0 --once
   repo-sync dashboard --watch
 `);

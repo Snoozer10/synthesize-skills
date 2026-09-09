@@ -19,4 +19,13 @@ backup/
 # Logs and temp
 *.log
 *.tmp
+*.tgz
+
+# Serena / Agent artifacts
+.serena/
+.agent/
+.venv/
+node_modules/
+Research and docs/
+The Created Skills/.agent/
 
