@@ -50,45 +50,42 @@ Common commands:
 WSL note: if `runpane doctor --json` cannot find `/tmp/pane-daemon.../daemon.sock` or `runpane` resolves to a broken Windows shim, Pane may be running on Windows. Try `powershell.exe -NoProfile -Command 'Set-Location $env:TEMP; runpane doctor --json'`, then create Panes through the same PowerShell form using the saved WSL repo name or id. Use `runpane agents doctor --agent <agent> --repo <selector> --json` to diagnose the repo environment Pane will actually use.
 <!-- pane-agent-context:end -->
 
-# Agent Guide — Creating AI-Agent Skills
+# AGENTS — Creating AI-Agent Skills
 
 ## Repo truth
-- `.agents/skills/` is SSOT. `templates/skill-template/` is starter, not installed. `scripts/manifest.py` maps to hosts (`.agents`, `.claude`, `.opencode`, `.gemini`). `install.ps1`/`install.sh` are copy-only consumers with SHA256 compare + `.bak` backup.
-- `Research and docs/` (upstream) and `The Created Skills/` (staging) are read-only zones. CI only watches `.agents/skills/**`, `templates/**`, `scripts/**`. Do not edit those zones without explicit user ask.
-- `opencode.json` sets `default_agent: plan`. `VERSION` is `0.1.0`.
+- `.agents/skills/` is SSOT (currently `gemini-context-engineer`, `repo-blast-radius-sync`). `templates/skill-template/` is starter (not installed). `scripts/manifest.py` maps `.agents` → `.claude/.opencode/.gemini`. `install.ps1`/`install.sh` are copy-only (SHA256 + `.bak`); no transforms.
+- `Research and docs/` and `The Created Skills/` are read-only. CI watches only `.agents/skills/**`, `templates/**`, `scripts/**` — but `scripts/validate.py` discovers via `rglob` excluding only `references/scripts/__pycache__/.git/node_modules`, so `The Created Skills/**/SKILL.md` *is* still checked locally.
+- `opencode.json: default_agent=plan`. `VERSION=0.1.1` (keep in sync via `scripts/release_sync.py`). No `pip`/`npm` — scripts are stdlib-only (enforced in `GEMINI.md`).
 
-## Commands (exact, copy-paste)
+## Commands
 ```powershell
-python scripts/validate.py
-python scripts/validate.py .agents/skills/<name>
-python scripts/manifest.py
-install.ps1                # dry-run (Windows)
+python scripts/validate.py                          # all skills (CI gate)
+python scripts/validate.py .agents/skills/<name>   # single skill
+python scripts/manifest.py                          # regen manifest.json (commit it)
+install.ps1                # dry-run
 install.ps1 -Force         # apply
-bash install.sh            # dry-run (POSIX)
+bash install.sh            # dry-run
 bash install.sh --force    # apply
+python scripts/release_sync.py --check              # drift gate (VERSION/GEMINI/README/CHANGELOG/PINS)
+python scripts/release_sync.py --bump patch --apply # atomic VERSION + GEMINI.md + README region
 ```
 
-Release (evergreen): python scripts/release_sync.py --check # CI gate; python scripts/release_sync.py --bump patch --apply # atomic VERSION/CHANGELOG/GEMINI/README
+## Validation gate
+- **ERRORS (exit 1):** `name` regex `^[a-z0-9]+(-[a-z0-9]+)*$`; `dir == frontmatter name` (only `skill-template`/`skill-name` allowlisted); `description 1-500 chars`; `frontmatter raw <=1024`; `body <500 lines`; runnable fence ` ```(python|py|bash|sh|powershell|ps1|js|ts)` required.
+- **WARNINGS (exit 0):** `description` must start `Use when`; no `I can/will/help/am`; no `workflow`/`step.by.step`/`first.*then.*finally` in body; `Keywords:` required; no `@skills/@name/` links.
 
-## Validation gate (trust `scripts/validate.py`, not prose)
-- Discovery: `rglob("SKILL.md")` excluding `references/`, `scripts/`, `__pycache__`, `.git`, `node_modules`. That means `templates/skill-template/SKILL.md` and `The Created Skills/**/SKILL.md` ARE checked.
-- ERRORS (exit 1): `name` regex `^[a-z0-9]+(-[a-z0-9]+)*$`; `dir name == frontmatter name` (only `skill-template`/`skill-name` is allowlisted); `description 1-500 chars`; `frontmatter raw <=1024 chars`; `body <500 lines`; runnable fence ` ```(python|py|bash|sh|powershell|ps1|js|ts)` required.
-- WARNINGS (exit 0): `description` must start `Use when`; no `I can/will/help/am`; no `workflow`/`step.by.step`/`first.*then.*finally` in body; `Keywords:` required; no `@skills`/`@name/` links (use skill name).
-- Current PASS shows warnings only (e.g. `gemini-context-engineer` 3 warnings). Fix ERRORs only; warnings are style.
+## Structure
+- New skill: `mkdir .agents/skills/<kebab>` then `copy templates/skill-template/SKILL.md .agents/skills/<name>/SKILL.md` (keep filename `SKILL.md`).
+- Frontmatter: `name` + `description` only. Description: third-person, triggers/symptoms/tools, `Use when` prefix.
+- Body: bullets > prose, ASCII only, one minimal runnable example, no `@`-links, no workflow summary.
+- Host install is verbatim copy; `install.ps1` skips identical SHA256. Run `manifest.py` after adding/removing a skill — `manifest.json` is generated.
+- CI: `windows-latest` + `ubuntu-latest`, Python 3.11, single step `python scripts/validate.py`. PRs also run `release_sync.py --check`.
 
-## Structure that matters
-- Add/edit skill: `mkdir .agents/skills/<kebab-case-name>` then copy `templates/skill-template/SKILL.md` -> `.agents/skills/<name>/SKILL.md`. Keep file name `SKILL.md`.
-- Host install: `.agents/skills/<name>/` copied verbatim to `.claude/skills/<name>/`, `.opencode/skills/<name>/`, `.gemini/skills/<name>/`. `install.ps1` skips identical SHA256.
-- Scripts are stdlib-only (validated by `GEMINI.md` constraint). No `pip install`, no `npm`. CI matrix `windows-latest` + `ubuntu-latest`, Python 3.11, single step `python scripts/validate.py`.
+## Constraints
+- One skill at a time — `docs/WORKFLOW.md` stop-gate. Untested edit = revert. Never batch-create.
+- Never edit `Research and docs/` or `The Created Skills/` without explicit ask (they still affect `validate.py` locally).
+- `.agent/` inside a skill (`The Created Skills/repo-blast-radius-sync/.agent/`) is skill-internal registry, not this repo's.
+- Promotion is not a release — `VERSION` bumps only on `release_sync --bump`; keep `VERSION`, `GEMINI.md:version/last_indexed`, and `README` `<!-- release-sync -->` region in sync.
 
-## Constraints to not miss
-- Never batch-create skills. One skill at a time per `docs/WORKFLOW.md` stop-gate. Untested edit = revert.
-- Frontmatter: `name` + `description` only per template. Keep description third-person, triggers/symptoms/tools, under 500 chars, include searchable `Keywords:` in body.
-- Body: one minimal runnable example, bullets over prose, ASCII only, under 500 words/lines, no `@`-links, no workflow summary.
-- `.agent/` at skill level (`The Created Skills/repo-blast-radius-sync/.agent/`) is skill-internal registry, not this repo's.
-
-## Workflow (RED -> GREEN -> REFACTOR)
-1. RED: write 1-3 pressure scenarios in `tests/`, run without skill, record exact failure verbatim.
-2. GREEN: smallest SKILL.md that fixes baseline, re-run scenarios, pass = agent complies.
-3. REFACTOR: add counters/red-flags for new rationalizations, keep token cost flat (move heavy refs to separate files).
-- Check `docs/WORKFLOW.md` + `docs/CONTRIBUTING.md` for gate details before PR. Run `python scripts/validate.py` before every commit.
+## Workflow
+RED → GREEN → REFACTOR per `docs/WORKFLOW.md`: 1) RED: write 1-3 pressure scenarios in `tests/`, run without skill, record failure verbatim. 2) GREEN: smallest `SKILL.md` that fixes baseline. 3) REFACTOR: add counters/red-flags, keep token cost flat (move heavy refs to `references/`). Run `python scripts/validate.py` before every commit.
