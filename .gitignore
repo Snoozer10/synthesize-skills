@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backups
+*~
+*.bak
+*_backup/
+backup/
+
+# Logs and temp
+*.log
+*.tmp
+
