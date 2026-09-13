@@ -5,6 +5,12 @@
     "opencode": ".opencode/skills/gemini-context-engineer",
     "gemini": ".gemini/skills/gemini-context-engineer"
   },
+  "release-sync": {
+    "agents": ".agents/skills/release-sync",
+    "claude": ".claude/skills/release-sync",
+    "opencode": ".opencode/skills/release-sync",
+    "gemini": ".gemini/skills/release-sync"
+  },
   "repo-blast-radius-sync": {
     "agents": ".agents/skills/repo-blast-radius-sync",
     "claude": ".claude/skills/repo-blast-radius-sync",
