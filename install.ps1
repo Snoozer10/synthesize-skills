@@ -3,7 +3,7 @@ param([switch]$Force)
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Src = Join-Path $Root ".agents\skills"
-$Targets = @(".claude\skills", ".opencode\skills", ".gemini\skills")
+$Targets = @(".agents\skills", ".claude\skills", ".opencode\skills", ".gemini\skills")
 # ponytail: minimal copy, sha256 compare only; add logging/parallel when skill count grows
 function Same($a, $b) {
   if (!(Test-Path $b)) { return $false }

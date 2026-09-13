@@ -74,7 +74,7 @@ if (cmd === "dashboard") {
     setTimeout(() => {
       const url = `http://127.0.0.1:${port || 8765}`;
       const opener = os.platform() === "win32" ? "start" : os.platform() === "darwin" ? "open" : "xdg-open";
-      try { require("child_process").exec(`${opener} ${url}`); } catch {}
+      try { require("child_process").execFile(opener, [url]); } catch {}
     }, 800);
     child.on("close", (c) => process.exit(c ?? 0));
   } else {
