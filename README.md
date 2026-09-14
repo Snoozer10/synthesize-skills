@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/Snoozer10/synthesize-skills/validate.yml?branch=main)](https://github.com/Snoozer10/synthesize-skills/actions/workflows/validate.yml)
 [![Python](https://img.shields.io/badge/python-3.11+-yellow)](https://www.python.org/)
+[![npm](https://img.shields.io/npm/v/@snoozer10/synthesize-skills)](https://www.npmjs.com/package/@snoozer10/synthesize-skills)
 
 > Repo for authoring, validating, and installing reusable AI-agent skills.
 
@@ -15,7 +16,9 @@
 | `repo-blast-radius-sync` | Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync — detects blast radius and blocks orphaned commits | Refactor/feature/bugfix | `repo-sync add repo-blast-radius-sync` |
 | `release-sync` | Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major\|minor\|patch — parity gate and atomic bump for release_sync | Release prep | `repo-sync add release-sync` |
 
-## Install (From Source — Always Works)
+## Install
+
+### From Source (Always Works)
 
 ```bash
 git clone https://github.com/Snoozer10/synthesize-skills
@@ -26,6 +29,15 @@ bash install.sh --force  # POSIX
 ```
 
 Copies all 3 skills to 4 host directories: `.agents/skills/`, `.claude/skills/`, `.opencode/skills/`, `.gemini/skills/`
+
+### From npm (Published Package)
+
+```bash
+npx --package @snoozer10/synthesize-skills repo-sync add <skill>
+# or install globally
+npm i -g @snoozer10/synthesize-skills
+repo-sync add <skill>
+```
 
 ## Platform Support (4 Host Targets)
 
