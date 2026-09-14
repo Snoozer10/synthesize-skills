@@ -125,5 +125,5 @@ synthesize-skills/
 - Changelog: `CHANGELOG.md`
 - License: `LICENSE`
 <!-- release-sync:start -->
-Version: 1.0.0
+Version: 1.0.1
 <!-- release-sync:end -->
