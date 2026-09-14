@@ -1,4 +1,38 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "plan"
+  "default_agent": "orchestrator",
+  "subagent_depth": 3,
+  "agent": {
+    "orchestrator": {
+      "model": "opencode/nemotron-3-ultra-free",
+      "description": "S-Tier Autonomous Swarm Commander. Pure manager coordinating Plan -> Recon -> Build -> Debug -> Audit.",
+      "temperature": 0.2,
+      "top_p": 0.95,
+      "max_tokens": 32768,
+      "permission": {
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "edit": "deny",
+        "write": "deny",
+        "bash": "deny"
+      }
+    }
+  },
+  "provider": {
+    "opencode": {
+      "options": {
+        "blacklist": [
+          "opencode/big-pickle",
+          "opencode/muse-spark-1.2-free"
+        ]
+      }
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "write": "ask",
+    "bash": "ask"
+  }
 }
