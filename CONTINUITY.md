@@ -8,9 +8,9 @@
 ## 📋 Current Session Context
 
 **Date:** 2026-09-14
-**Branch:** main (HEAD: 52c06a1)
-**Version:** 1.0.0 → 1.0.1 (pending bump)
-**Active Workstream:** WS-005 Documentation Audit & Exercises
+**Branch:** main (HEAD: 1979d93)
+**Version:** 1.0.1 (tags: v1.0.1, v1.0.2, v1.0.3 pushed)
+**Active Workstream:** Phase 2 - Test Release Workflow (PAUSED)
 
 ---
 
@@ -25,18 +25,22 @@
 | WS-005a | Create docs/error-solving/understood-errors.md | 2026-09-14 | File exists, 15+ error patterns documented |
 | WS-005b | Expand exercises/ with release-sync module | 2026-09-14 | `exercises/04-release-sync/` created (2 exercises) |
 | WS-005c | Update GEMINI.md (v1.0.1, last_indexed, learnings) | 2026-09-14 | `grep version GEMINI.md` → 1.0.1 |
+| WS-005d | Create CONTINUITY.md | 2026-09-14 | This file |
+| WS-005e | Create docs/handoff.md | 2026-09-14 | File exists |
+| WS-005f | Update README.md (badges, install) | 2026-09-14 | GitHub Packages badge, dual registry |
+| WS-005g | Update CHANGELOG.md [Unreleased] | 2026-09-14 | OIDC workflow + docs entries |
+| WS-006 | Version bump 1.0.0 → 1.0.1 | 2026-09-14 | `release_sync.py --bump patch --apply` ✅ |
 
 ---
 
-## 🔄 NOW — Active Workstream
+## 🔄 NOW — Active Workstream (PAUSED)
 
-| ID | Workstream | Status | Next Action |
-|----|------------|--------|-------------|
-| WS-005d | Create CONTINUITY.md | ✅ This file | — |
-| WS-005e | Create docs/handoff.md | ⏳ Pending | Create file |
-| WS-005f | Update README.md (badges, install) | ⏳ Pending | Edit file |
-| WS-005g | Update CHANGELOG.md [Unreleased] | ⏳ Pending | Edit file |
-| WS-006 | Version bump 1.0.0 → 1.0.1 | ⏳ Pending | `release_sync.py --bump patch --apply` |
+| ID | Workstream | Status | Blocker |
+|----|------------|--------|---------|
+| WS-007 | Test release workflow (tag push) | ⏸️ **PAUSED** | npmjs.org needs automation token |
+
+**GitHub Packages:** ✅ WORKING (provenance published to sigstore)
+**npmjs.org:** ❌ BLOCKED — `NPM_TOKEN` secret is personal token with 2FA (EOTP error)
 
 ---
 
@@ -44,7 +48,7 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
-| WS-007 | Test release workflow (tag push) | WS-006 complete | `git tag v1.0.1 && git push --follow-tags` |
+| WS-007b | Create npm automation token + update NPM_TOKEN secret | User action | Both registries publish on tag push |
 | WS-008 | Next skill development cycle | WS-007 complete | RED-GREEN-REFACTOR for new skill |
 
 ---
@@ -63,10 +67,15 @@
 
 ## 🧠 Key Learnings (Session-Scoped)
 
-- **LEARNING-002:** npm vs GitHub Packages trust models differ — configure separately
-- **LEARNING-003:** GitHub Packages uses "Actions access" not "Trusted Publisher"
-- **LEARNING-004:** Tag force-push acceptable for correcting tag-to-commit mapping
-- **LEARNING-005:** Atomic bump is the ONLY way to update versions — manual edits cause drift
+- **LEARNING-001:** NEVER assume `validate.py` covers frontmatter edge cases without running it; ALWAYS execute `python scripts/validate.py` against the target skill before claiming PASS.
+- **LEARNING-002:** **OIDC Trusted Publisher Setup** — npmjs.org and GitHub Packages have DIFFERENT trust models:
+  - npmjs.org: Configure on npmjs.com → Settings → Trusted Publishers (workflow-specific)
+  - GitHub Packages: Configure on GitHub → Package settings → Actions access (repository-wide)
+  - Both require `id-token: write` in workflow permissions
+- **LEARNING-003:** **GitHub Packages Actions Access** — Not "Trusted Publisher" like npm. Grant via Package settings → Actions access → Add repository → Write role. Uses `secrets.GITHUB_TOKEN` (not NPM_TOKEN).
+- **LEARNING-004:** **Tag Force-Push** — When tag exists but points to old commit, use `git tag -f v1.0.0 && git push origin v1.0.0 --force` to update. Document in CHANGELOG.
+- **LEARNING-005:** **Atomic Version Bump** — `release_sync.py --bump patch --apply` updates 5 files atomically with rollback. Never manually edit VERSION/package.json/GEMINI.md/README.md version fields.
+- **LEARNING-006:** **npm Automation Token Required** — Personal tokens with 2FA fail in CI (EOTP). Must create automation token: `npm token create --type=automation --read-only=false --cidr=0.0.0.0/0`
 
 ---
 
@@ -76,29 +85,29 @@
 synthesize-skills/
 ├── .agents/skills/           # 3 skills (canonical)
 ├── docs/
-│   ├── error-solving/        # NEW: understood-errors.md
-│   ├── handoff.md            # PENDING
+│   ├── error-solving/        # understood-errors.md
+│   ├── handoff.md            # session handoff template
 │   └── ...
 ├── exercises/
-│   └── 04-release-sync/      # NEW: 2 exercises (drift, atomic-bump)
-├── GEMINI.md                 # UPDATED: v1.0.1, 2026-09-14, +3 learnings
+│   └── 04-release-sync/      # 2 exercises (drift, atomic-bump)
+├── GEMINI.md                 # v1.0.1, 2026-09-14, +3 learnings
 ├── CONTINUITY.md             # THIS FILE
-├── README.md                 # PENDING: badges, dual install
-├── CHANGELOG.md              # PENDING: [Unreleased] entries
-├── VERSION                   # 1.0.0 → 1.0.1 (pending)
-└── package.json              # 1.0.0 → 1.0.1 (pending)
+├── README.md                 # GitHub Packages badge, dual install
+├── CHANGELOG.md              # [Unreleased] entries
+├── VERSION                   # 1.0.1
+└── package.json              # 1.0.1
 ```
 
 ---
 
 ## 🔍 Verification Checklist (Pre-Commit)
 
-- [ ] `python scripts/validate.py` → exit 0
-- [ ] `python scripts/release_sync.py --check` → exit 0
-- [ ] `python scripts/manifest.py` → manifest.json updated
-- [ ] `git status` → only intended files modified
-- [ ] No files in `Research and docs/` or `The Created Skills/` modified
+- [x] `python scripts/validate.py` → exit 0
+- [x] `python scripts/release_sync.py --check` → exit 0
+- [x] `python scripts/manifest.py` → manifest.json updated
+- [x] `git status` → clean (only untracked files)
+- [x] No files in `Research and docs/` or `The Created Skills/` modified
 
 ---
 
-*Updated by orchestrator on 2026-09-14. Next update: after WS-006 version bump.*
+*Updated by orchestrator on 2026-09-14. Next update: after WS-007 npm automation token configured.*
