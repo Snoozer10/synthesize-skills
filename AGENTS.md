@@ -5,7 +5,7 @@
 ---
 
 ## 🎯 Repo Purpose
-Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed to 4 host dirs (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`).
+Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed across 8 host targets (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`, `.codex/skills`, `.cursor/skills`, `.windsurf/skills`, `.copilot/skills`).
 
 ---
 
@@ -18,16 +18,27 @@ python scripts/validate.py
 # Validate SINGLE skill
 python scripts/validate.py .agents/skills/<name>
 
-# Generate manifest.json (maps skill → host install paths)
+# Generate manifest.json (maps skill → 8 host install paths)
 python scripts/manifest.py
+
+# Compile native adapters (Claude commands, Cursor rules, Gemini rules, OpenCode, Codex, Windsurf)
+python scripts/compile_adapters.py
 
 # Dry-run install (shows what would be copied)
 install.ps1                    # Windows
 bash install.sh                # POSIX
 
-# Apply install (copies to all 4 host dirs)
+# Apply install (copies across target host dirs)
 install.ps1 -Force             # Windows
 bash install.sh --force        # POSIX
+
+# Global install to user home profiles
+install.ps1 -Scope Global -Force
+bash install.sh --scope global --force
+
+# Rollback installation
+install.ps1 -Rollback
+bash install.sh --rollback
 
 # Drift gate (dogfooding this repo)
 python scripts/release_sync.py --check

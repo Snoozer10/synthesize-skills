@@ -30,17 +30,15 @@
 | WS-005f | Update README.md (badges, install) | 2026-09-14 | GitHub Packages badge, dual registry |
 | WS-005g | Update CHANGELOG.md [Unreleased] | 2026-09-14 | OIDC workflow + docs entries |
 | WS-006 | Version bump 1.0.0 → 1.0.1 | 2026-09-14 | `release_sync.py --bump patch --apply` ✅ |
+| WS-009 | Universal Multi-Agent Skills Engine & repo-standards-engineer | 2026-09-22 | Full test suite green (12 tests, 4 skills, 8 hosts, Dual-Axis review) |
 
 ---
 
-## 🔄 NOW — Active Workstream (PAUSED)
+## 🔄 NOW — Active Workstream
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| WS-007 | Test release workflow (tag push) | ⏸️ **PAUSED** | npmjs.org needs automation token |
-
-**GitHub Packages:** ✅ WORKING (provenance published to sigstore)
-**npmjs.org:** ❌ BLOCKED — `NPM_TOKEN` secret is personal token with 2FA (EOTP error)
+| WS-010 | Final Release Verification & User Review Gate | 🟢 **IN PROGRESS** | Awaiting user review before semver bump |
 
 ---
 
@@ -48,8 +46,7 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
-| WS-007b | Create npm automation token + update NPM_TOKEN secret | User action | Both registries publish on tag push |
-| WS-008 | Next skill development cycle | WS-007 complete | RED-GREEN-REFACTOR for new skill |
+| WS-011 | Atomic Semver Bump & Dual Registry Publish | User approval | Tag v1.1.0 release |
 
 ---
 

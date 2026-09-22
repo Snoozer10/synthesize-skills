@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Universal Multi-Host Installer Engine** (`install.ps1`, `install.sh`)
+  - Cross-platform support across 8 AI host ecosystems: Open Agents Standard, Antigravity/Gemini, Claude Code, OpenAI Codex, OpenCode, Cursor, Windsurf, Copilot.
+  - Project and Global installation scopes (`-Scope Project|Global`).
+  - Safe concurrency: lock-file acquisition with wait-retry loop and stale-lock recovery.
+  - Fail-safe atomic file swaps: staging buffer (`.tmp.<pid>`) before atomic rename.
+  - SHA-256 idempotency: zero file churn on identical content.
+  - Automatic transaction receipt recording (`.runtime/installed_receipt.json`) and instant clean rollback (`-Rollback` / `--rollback`).
+  - Automatic bytecode filtering: excludes `__pycache__` and `*.pyc` files from distribution.
+- **Canonical Skill: `repo-standards-engineer`** (`.agents/skills/repo-standards-engineer/`)
+  - AST-based standards discovery (`scripts/discover_standards.py`) extracting API response envelopes, error enums (including `AnnAssign`), and DB query patterns with content-addressed SHA-256 caching.
+  - JIT MIP token bounding (`scripts/inject_standards.py`) enforcing $\le 600$ token ceiling.
+  - Symbol and standards indexer (`scripts/index_standards.py`).
+  - Spec Shaper (`scripts/shape_spec.py`) producing durable `specs/<slug>/SPEC.md` and `VERIFICATION.json`.
+  - Executable Verification Contract (`scripts/verify_spec.py`) validating deterministic acceptance assertions before completion (with worktree support).
+- **Multi-Host Adapter Compiler** (`scripts/compile_adapters.py`)
+  - Compiles native adapters for Claude Code (`.claude/commands/`), Cursor (`.cursor/rules/*.mdc`), Antigravity (`.gemini/rules/`), OpenCode (`.opencode/commands/`), OpenAI Codex (`.codex/instructions/`), and Windsurf (`.windsurf/rules/`).
+- **Test & Validation Suite**
+  - `tests/test_standards_engine.py` (AST discovery, token bounding, spec verification).
+  - `tests/test_installer_concurrency_rollback.py` (PowerShell & pure POSIX shell rollback and bytecode exclusion).
+  - `tests/test_compile_adapters.py` (CLI flags, multi-host generation).
+  - `tests/test_edge_cases_and_fault_injection.py` (empty directories, token trimming, contract assertion failures).
+
 ---
 
 ## Release v1.0.1 (2026-09-14)

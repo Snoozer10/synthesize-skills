@@ -1,0 +1,13 @@
+{
+  "slug": "feature-slug",
+  "title": "Feature Title",
+  "created_at": "YYYY-MM-DD",
+  "assertions": {
+    "files_exist": [
+      "src/feature.py"
+    ],
+    "commands": [
+      "python -m unittest tests/test_feature.py"
+    ]
+  }
+}

@@ -112,11 +112,28 @@ if (cmd === "dashboard") {
       }
     }
   }
-  for (const host of [".agents", ".claude", ".opencode", ".gemini"]) {
-    copyRec(src, path.join(consumerRoot, host, "skills", skill));
+  const isGlobal = argv.includes("--global") || argv.includes("-g");
+  const targetIdx = argv.indexOf("--target");
+  let chosenHosts = [".agents", ".claude", ".opencode", ".gemini", ".codex", ".cursor", ".windsurf", ".copilot"];
+  if (targetIdx !== -1 && argv[targetIdx + 1]) {
+    const requested = argv[targetIdx + 1].split(",").map(s => s.trim().startsWith(".") ? s.trim() : "." + s.trim());
+    chosenHosts = requested;
   }
-  console.log(`added ${skill} to ${consumerRoot}/.{agents,claude,opencode,gemini}/skills/${skill}`);
-  runPy([path.join(PKG_ROOT, "scripts", "manifest.py")], { cwd: consumerRoot });
+
+  const baseDir = isGlobal ? (process.env.USERPROFILE || process.env.HOME) : consumerRoot;
+
+  for (const host of chosenHosts) {
+    copyRec(src, path.join(baseDir, host, "skills", skill));
+  }
+  console.log(`added ${skill} to ${baseDir}/{${chosenHosts.map(h => h.replace(/^\./, '')).join(',')}}/skills/${skill}`);
+  if (!isGlobal) {
+    runPy([path.join(PKG_ROOT, "scripts", "manifest.py")], { cwd: consumerRoot });
+    runPy([path.join(PKG_ROOT, "scripts", "compile_adapters.py")], { cwd: consumerRoot });
+  }
+} else if (cmd === "detect-hosts") {
+  process.exit(runPy([path.join(PKG_ROOT, "scripts", "detect_hosts.py"), ...argv.slice(1)], { cwd: process.cwd() }));
+} else if (cmd === "compile-adapters") {
+  process.exit(runPy([path.join(PKG_ROOT, "scripts", "compile_adapters.py"), ...argv.slice(1)], { cwd: process.cwd() }));
 } else if (cmd === "validate") {
   const target = argv[1] || ".";
   process.exit(runPy([path.join(PKG_ROOT, "scripts", "validate.py"), target], { cwd: process.cwd() }));
@@ -125,3 +142,4 @@ if (cmd === "dashboard") {
 } else {
   console.error(`unknown command: ${cmd}`); printHelp(); process.exit(2);
 }
+

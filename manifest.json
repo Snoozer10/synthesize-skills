@@ -3,18 +3,40 @@
     "agents": ".agents/skills/gemini-context-engineer",
     "claude": ".claude/skills/gemini-context-engineer",
     "opencode": ".opencode/skills/gemini-context-engineer",
-    "gemini": ".gemini/skills/gemini-context-engineer"
+    "gemini": ".gemini/skills/gemini-context-engineer",
+    "codex": ".codex/skills/gemini-context-engineer",
+    "cursor": ".cursor/skills/gemini-context-engineer",
+    "windsurf": ".windsurf/skills/gemini-context-engineer",
+    "copilot": ".copilot/skills/gemini-context-engineer"
   },
   "release-sync": {
     "agents": ".agents/skills/release-sync",
     "claude": ".claude/skills/release-sync",
     "opencode": ".opencode/skills/release-sync",
-    "gemini": ".gemini/skills/release-sync"
+    "gemini": ".gemini/skills/release-sync",
+    "codex": ".codex/skills/release-sync",
+    "cursor": ".cursor/skills/release-sync",
+    "windsurf": ".windsurf/skills/release-sync",
+    "copilot": ".copilot/skills/release-sync"
   },
   "repo-blast-radius-sync": {
     "agents": ".agents/skills/repo-blast-radius-sync",
     "claude": ".claude/skills/repo-blast-radius-sync",
     "opencode": ".opencode/skills/repo-blast-radius-sync",
-    "gemini": ".gemini/skills/repo-blast-radius-sync"
+    "gemini": ".gemini/skills/repo-blast-radius-sync",
+    "codex": ".codex/skills/repo-blast-radius-sync",
+    "cursor": ".cursor/skills/repo-blast-radius-sync",
+    "windsurf": ".windsurf/skills/repo-blast-radius-sync",
+    "copilot": ".copilot/skills/repo-blast-radius-sync"
+  },
+  "repo-standards-engineer": {
+    "agents": ".agents/skills/repo-standards-engineer",
+    "claude": ".claude/skills/repo-standards-engineer",
+    "opencode": ".opencode/skills/repo-standards-engineer",
+    "gemini": ".gemini/skills/repo-standards-engineer",
+    "codex": ".codex/skills/repo-standards-engineer",
+    "cursor": ".cursor/skills/repo-standards-engineer",
+    "windsurf": ".windsurf/skills/repo-standards-engineer",
+    "copilot": ".copilot/skills/repo-standards-engineer"
   }
 }

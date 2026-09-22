@@ -11,15 +11,21 @@
 
 ---
 
-## 📦 Skills Catalog (3 Canonical Skills)
+## 📦 Skills Catalog (4 Canonical Skills)
 
 | Skill | Description | Trigger | Install |
-|-------|-------------|---------|---------|
+|---|---|---|---|
 | `gemini-context-engineer` | Use when creating or maintaining GEMINI.md, mapping repository architecture, compiling task context slices, guarding git boundaries, or verifying execution contracts | GEMINI.md tasks, repo mapping, context compilation | `repo-sync add gemini-context-engineer` |
 | `repo-blast-radius-sync` | Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync — detects blast radius and blocks orphaned commits | Refactor/feature/bugfix, parity verification | `repo-sync add repo-blast-radius-sync` |
 | `release-sync` | Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major\|minor\|patch — parity gate and atomic bump for release_sync | Release prep, version drift detection | `repo-sync add release-sync` |
+| `repo-standards-engineer` | Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications | Standards extraction, spec interview, contract verification | `repo-sync add repo-standards-engineer` |
 
 ### Skill Details
+
+#### `repo-standards-engineer`
+- **Capabilities**: AST Standards Scanner (extracts envelopes, enums, DB patterns with SHA-256 caching), JIT Token Bounding (MIP ≤600 tokens), Spec Shaper (`specs/<slug>/SPEC.md`), Executable Assertion Contracts (`verify_spec.py`).
+- **Structure**: 5 scripts (`discover_standards.py`, `inject_standards.py`, `index_standards.py`, `shape_spec.py`, `verify_spec.py`), 3 templates, AST pattern reference.
+- **Use when**: Unfamiliar codebase onboarding, shaping feature specs, enforcing deterministic verification before completion.
 
 #### `gemini-context-engineer`
 - **Capabilities**: JIT Context Compiler (MIP token bounding ≤600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit sync), Executable Workstream Proofs (anti-premature completion harness)
@@ -79,14 +85,35 @@ repo-sync add <skill>
 
 ---
 
-## 🖥️ Platform Support (4 Host Targets)
+## 🖥️ Universal Platform Support (8 Host Ecosystems)
 
-| Platform | Host Directory | Install Method |
-|----------|----------------|----------------|
-| OpenCode | `.opencode/skills/` | `install.ps1 -Force` / `bash install.sh --force` |
-| Claude Code | `.claude/skills/` | Same |
-| Gemini CLI | `.gemini/skills/` | Same |
-| Generic / Agents | `.agents/skills/` | Same (canonical SSOT) |
+| Platform | Project Target | User-Global Target | Native Adapter |
+|---|---|---|---|
+| Open Agents Standard | `.agents/skills/` | `~/.agents/skills/` | Canonical SSOT |
+| Antigravity / Gemini | `.gemini/skills/` | `~/.gemini/skills/` | `.gemini/rules/*.md` |
+| Claude Code / CLI | `.claude/skills/` | `~/.claude/skills/` | `.claude/commands/*.md` |
+| OpenAI Codex | `.codex/skills/` | `~/.codex/skills/` | `.codex/instructions/*.md` |
+| OpenCode | `.opencode/skills/` | `~/.config/opencode/skills/` | `.opencode/commands/*.md` |
+| Cursor | `.cursor/skills/` | `~/.cursor/skills/` | `.cursor/rules/*.mdc` |
+| Codeium Windsurf | `.windsurf/skills/` | `~/.codeium/windsurf/skills/` | `.windsurf/rules/*.md` |
+| GitHub Copilot | `.copilot/skills/` | `~/.copilot/skills/` | Instructions block |
+
+### Installer CLI Switches
+```powershell
+# PowerShell (Windows)
+.\install.ps1 -Force                                      # Apply auto-detected install
+.\install.ps1 -Scope Global -Force                        # Install globally into user profiles (~/.gemini, ~/.claude, etc.)
+.\install.ps1 -Target "claude,antigravity" -Force         # Selective multi-host targeting
+.\install.ps1 -Rollback                                   # Safely rollback via transaction receipt
+```
+
+```bash
+# POSIX Shell (Linux / macOS / WSL)
+./install.sh --force                                      # Apply auto-detected install
+./install.sh --scope global --force                       # Install globally
+./install.sh --target "claude,antigravity" --force        # Selective multi-host targeting
+./install.sh --rollback                                   # Safely rollback via transaction receipt
+```
 
 ---
 

@@ -1,0 +1,68 @@
+{
+  "evals": [
+    {
+      "id": "eval-1-polyglot-create",
+      "description": "Runs indexing and template synthesis on a synthetic polyglot repo fixture",
+      "assertions": {
+        "latency_ms": "< 500",
+        "token_count": "< 2500",
+        "exit_code": "== 0",
+        "deep_modules_found": ">= 1"
+      }
+    },
+    {
+      "id": "eval-2-federation-repair",
+      "description": "Tests --federate creating pointer shims for CLAUDE.md and AGENTS.md",
+      "assertions": {
+        "pointer_shim": "== True",
+        "split_brain_warnings": "== 0"
+      }
+    },
+    {
+      "id": "eval-3-dag-cycle-detection",
+      "description": "Tests Section 5 cyclical workstream detection via graphlib.TopologicalSorter",
+      "assertions": {
+        "error_detected": "ERR_DAG_CYCLE",
+        "exit_code": "== 1"
+      }
+    },
+    {
+      "id": "eval-4-reality-drift-detection",
+      "description": "Tests --reality detecting missing component links on disk",
+      "assertions": {
+        "warning_detected": "WARN_REALITY_DRIFT"
+      }
+    },
+    {
+      "id": "eval-5-jit-compiler-slicing",
+      "description": "JIT context compiler AST dependency slicing under tight budget",
+      "assertions": {
+        "exit_code": "== 0",
+        "latency_ms": "< 600",
+        "token_count": "<= 500",
+        "invariants_preserved": "== True"
+      }
+    },
+    {
+      "id": "eval-6-vcs-daemon-diff",
+      "description": "VCS daemon staged public signature drift detection and auto-patch healing",
+      "assertions": {
+        "exit_code": "== 0",
+        "latency_ms": "< 1000",
+        "signature_drift_detected": "== True",
+        "auto_patch_success": "== True"
+      }
+    },
+    {
+      "id": "eval-7-workstream-proofs",
+      "description": "Executable workstream proof execution, dependency gating, and atomic transition",
+      "assertions": {
+        "exit_code": "== 0",
+        "latency_ms": "< 1000",
+        "dependency_blocked_verified": "== True",
+        "task_transitioned_done": "== True",
+        "downstream_unlocked": "== True"
+      }
+    }
+  ]
+}

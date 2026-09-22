@@ -28,21 +28,21 @@ generator: "gemini-context-engineer/v4.0.0"
 # Project Context: synthesize-skills
 
 ## 🎯 Project Overview
-Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are SKILL.md files with YAML frontmatter, validated by `scripts/validate.py`, and installed to host directories (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
+Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are SKILL.md files with YAML frontmatter, validated by `scripts/validate.py`, and installed across 8 host directories (`.agents`, `.claude`, `.opencode`, `.gemini`, `.codex`, `.cursor`, `.windsurf`, `.copilot`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
 
 ## 🏗️ Architecture & Component Mapping
 ```
 synthesize-skills/
 ├── .agents/skills/       # canonical skills (SSOT)
 ├── templates/            # SKILL.md starter template
-├── scripts/              # validate.py, manifest.py
+├── scripts/              # validate.py, manifest.py, compile_adapters.py, discover/inject/shape/verify
 ├── tests/                # pressure scenarios and fixtures
 ├── docs/                 # WORKFLOW.md, CONTRIBUTING.md
 ├── .github/workflows/    # validate.yml CI pipeline
 ├── Research and docs/    # upstream research (READ-ONLY)
 ├── The Created Skills/   # staging area (READ-ONLY)
-├── install.ps1           # Windows installer
-└── install.sh            # POSIX installer
+├── install.ps1           # Windows installer (PowerShell native, locking, rollback)
+└── install.sh            # POSIX installer (pure shell, locking, rollback)
 ```
 
 | Component | Path | Role |
@@ -50,12 +50,15 @@ synthesize-skills/
 | Canonical Skills | `.agents/skills/` | Single source of truth for all installed skills |
 | Starter Template | `templates/skill-template/SKILL.md` | Skeleton for new skills (frontmatter + body) |
 | Validator | `scripts/validate.py` | Enforces naming, frontmatter, body structure per skill |
-| Manifest Generator | `scripts/manifest.py` | Maps skill -> host install paths (`.agents`, `.claude`, `.opencode`, `.gemini`) |
+| Manifest Generator | `scripts/manifest.py` | Maps skill -> host install paths across 8 host ecosystems |
+| Adapter Compiler | `scripts/compile_adapters.py` | Compiles native adapter commands, rules, and instructions |
+| Standards Engine | `scripts/discover_standards.py` | AST and pattern discovery, SHA-256 caching, token-bounded JIT injection |
+| Spec Engine | `scripts/shape_spec.py` / `verify_spec.py` | Spec Shaper and deterministic executable verification contracts |
 | Pressure Tests | `tests/` | Scenario fixtures verifying skill behavior under edge cases |
 | Workflow Guide | `docs/WORKFLOW.md` | RED-GREEN-REFACTOR gate with stop-gate rules |
 | Contributing Guide | `docs/CONTRIBUTING.md` | Naming, description, and validation rules |
 | CI Pipeline | `.github/workflows/validate.yml` | Runs `scripts/validate.py` on push/PR (Windows + Ubuntu) |
-| Windows Installer | `install.ps1` | Copies skills to host dirs with SHA256 compare and backup |
+| Windows Installer | `install.ps1` | Copies skills to host dirs with SHA256 compare, backup, lock, rollback |
 | POSIX Installer | `install.sh` | Same as above for POSIX systems |
 
 ### Domain Lexicon & Ubiquitous Language

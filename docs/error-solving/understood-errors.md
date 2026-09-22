@@ -217,6 +217,30 @@ WARNING: .agents/skills/my-skill/SKILL.md: Keywords: section required
 
 ---
 
+## Cross-Platform Shell & Environment
+
+### PowerShell UTF-8 BOM in JSON Files
+**Error:**
+```
+json.decoder.JSONDecodeError: Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)
+```
+**Cause:** PowerShell 5.1 `Set-Content -Encoding UTF8` automatically writes a UTF-8 byte-order mark (BOM) (`0xEF, 0xBB, 0xBF`), which breaks standard Python `json.load()` and POSIX tools expecting UTF-8.
+**Resolution:** Write BOM-free UTF-8 explicitly using .NET:
+```powershell
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($filePath, $content, $utf8NoBom)
+```
+
+### Windows App Execution Alias breaking Git Bash Python
+**Error:**
+```
+Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.
+```
+**Cause:** In Git Bash on Windows, `python3` resolves to Windows Store placeholder shim `/c/Users/<user>/AppData/Local/Microsoft/WindowsApps/python3`.
+**Resolution:** Never rely on ambient `python3` in POSIX shell scripts on Windows. Write JSON and parse receipts in pure POSIX shell (`cat`, `sed`, `awk`, `grep`).
+
+---
+
 ## Maintenance Notes
 
 | Error Pattern | Frequency | Last Seen | Status |
