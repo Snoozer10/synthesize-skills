@@ -294,7 +294,9 @@ synthesize-skills/
 1. `VERSION`
 2. `GEMINI.md` (`version:` + `last_indexed:`)
 3. `package.json` (`version`)
-4. `README.md` (`<!-- release-sync:start -->Version: X.Y.Z<!-- release-sync:end -->`)
+4. `README.md` (`<!-- release-sync:start -->
+Version: 1.1.0
+<!-- release-sync:end -->`)
 5. `CHANGELOG.md` (ensures `## [Unreleased]` exists)
 
 **Never manually edit these version fields.** Use the script.
@@ -385,5 +387,5 @@ synthesize-skills/
 - License: `LICENSE`
 
 <!-- release-sync:start -->
-Version: 1.0.1
+Version: 1.1.0
 <!-- release-sync:end -->
