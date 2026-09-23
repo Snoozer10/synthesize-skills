@@ -13,6 +13,10 @@
   "All" installs into every known host target.
   Or provide a comma-separated list of host identifiers (e.g., "antigravity,claude,codex").
 
+.PARAMETER Skill
+  "all" (default) installs all canonical skills.
+  Or provide a comma-separated list of skill names (e.g., "release-sync,skill-creator").
+
 .PARAMETER Mode
   "Copy" (default) duplicates files with SHA-256 change detection and backup.
   "Link" creates directory junctions (where supported).
@@ -26,6 +30,7 @@
 param(
   [ValidateSet("Project", "Global")][string]$Scope = "Project",
   [string]$Target = "Auto",
+  [string]$Skill = "all",
   [ValidateSet("Copy", "Link")][string]$Mode = "Copy",
   [switch]$Force,
   [switch]$CommandsOnly,
@@ -150,9 +155,28 @@ try {
 
   $SelectedHosts = $SelectedHosts | Select-Object -Unique
 
+  $AvailableSkills = Get-ChildItem "$Src" -Directory
+  $Skills = $AvailableSkills
+  if ($Skill -ne "all") {
+    $requestedSkills = $Skill -split "," | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ -ne "" }
+    $validNames = $AvailableSkills | ForEach-Object { $_.Name }
+    $filteredSkills = @()
+    foreach ($req in $requestedSkills) {
+      $match = $AvailableSkills | Where-Object { $_.Name -eq $req }
+      if ($match) {
+        $filteredSkills += $match
+      } else {
+        Write-Error "Skill '$req' not found in canonical skills directory '$Src'. Available: $($validNames -join ', ')"
+        exit 1
+      }
+    }
+    $Skills = $filteredSkills
+  }
+
   Write-Host "=== Universal Multi-Agent Skills Installer ===" -ForegroundColor Cyan
   Write-Host "Scope:   $Scope"
   Write-Host "Targets: $($SelectedHosts -join ', ')"
+  Write-Host "Skills:  $($Skills.Name -join ', ')"
   Write-Host "Mode:    $Mode"
   Write-Host "Action:  $(if ($Force) { 'APPLYING CHANGES' } else { 'DRY-RUN (use -Force to apply)' })"
   Write-Host ""
@@ -162,7 +186,6 @@ try {
     return (Get-FileHash "$a" -Algorithm SHA256).Hash -eq (Get-FileHash "$b" -Algorithm SHA256).Hash
   }
 
-  $Skills = Get-ChildItem "$Src" -Directory
   $TotalCopied = 0
   $TotalSkipped = 0
 
@@ -170,6 +193,7 @@ try {
     timestamp  = (Get-Date).ToString("o")
     scope      = $Scope
     targets    = $SelectedHosts
+    skills     = @($Skills | ForEach-Object { $_.Name })
     installed  = @()
     backups    = @()
     new_files  = @()

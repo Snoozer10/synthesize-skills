@@ -36,6 +36,7 @@
 | WS-014 | Release v1.1.1 Patch Semver Bump & Parity Sync | 2026-09-23 | Atomic 5-file bump 1.1.0 -> 1.1.1 via release_sync.py |
 | WS-015 | GitHub Release v1.1.1 Publication & CI Automation | 2026-09-23 | `gh release view v1.1.1` live; `.github/workflows/release.yml` automated with Node 22 |
 | WS-016 | Canonical Skill #5 (skill-creator) & Staging Cleanliness | 2026-09-23 | 5 skills across 8 hosts; validate.py 0 errors/0 warnings; 7/7 pressure tests PASS; git status pristine |
+| WS-017 | Skills Collision, Cross-Impact Audit & Isolation Architecture | 2026-09-23 | Selective install (-Skill/--skill) in PowerShell & POSIX; non-destructive hook chaining; disambiguated cognitive triggers; tests/test_skill_isolation_and_portability.py 4/4 PASS; all 9 test suites PASS |
 
 ---
 
@@ -51,7 +52,7 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
-| WS-014 | Rotate NPM_TOKEN secret | Dec 6, 2026 | Prevent CI publish auth failures on token expiry |
+| WS-018 | Rotate NPM_TOKEN secret | Dec 6, 2026 | Prevent CI publish auth failures on token expiry |
 
 ---
 
@@ -64,6 +65,9 @@
 | 2026-09-14 | Dual registry publish (npmjs.org + GitHub Packages) | Maximize distribution, GitHub-native consumers |
 | 2026-09-14 | OIDC trusted publishers (no long-lived tokens) | Security best practice, SLSA Level 1 provenance |
 | 2026-09-14 | Atomic version bump via release_sync.py | Eliminate drift, guarantee rollback on failure |
+| 2026-09-23 | Selective Skill Installation (`-Skill` / `--skill`) | Users can install only the skills they need without full bundle |
+| 2026-09-23 | Non-Destructive Git Hook Chaining | Multiple skills can coexist in `.git/hooks/pre-commit` without overwriting |
+| 2026-09-23 | Disambiguated LLM Trigger Delineation | Delineates architectural reality drift vs semver drift vs spec contracts |
 
 ---
 

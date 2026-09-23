@@ -1,6 +1,6 @@
 ---
 name: repo-standards-engineer
-description: "Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications"
+description: "Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping feature specs, or verifying deterministic executable contracts in specs directory"
 ---
 
 # repo-standards-engineer
@@ -18,7 +18,7 @@ description: "Use when extracting codebase standards, response envelopes, and er
 - Verifying completion of tasks using executable assertion contracts.
 - When NOT to use: one-line scratch edits, non-code repositories, or purely aesthetic checks.
 
-Keywords: standards, ast, envelopes, error-codes, invariants, spec-shaper, verification, contracts, token-bounding
+Keywords: code-standards, ast-extraction, response-envelopes, error-codes, token-invariants, spec-shaper, deterministic-contracts, contract-verification
 
 ## Quick Reference
 | Task | Command |

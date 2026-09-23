@@ -2,9 +2,11 @@
 import argparse
 import ast
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -199,18 +201,75 @@ def auto_patch_gemini_md(repo_root: Path, context_file: Path) -> bool:
 
 
 def install_hooks(repo_root: Path):
-    hook_path = repo_root / ".git" / "hooks" / "pre-commit"
-    if not hook_path.parent.exists():
-        print(f"Error: {hook_path.parent} does not exist.")
+    try:
+        git_dir_res = subprocess.run(
+            ["git", "rev-parse", "--git-dir"],
+            cwd=str(repo_root),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        hooks_dir = Path(git_dir_res.stdout.strip())
+        if not hooks_dir.is_absolute():
+            hooks_dir = (repo_root / hooks_dir).resolve()
+        hooks_dir = hooks_dir / "hooks"
+    except Exception:
+        hooks_dir = repo_root / ".git" / "hooks"
+
+    try:
+        hooks_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"Error: Unable to create hooks directory {hooks_dir}: {e}", file=sys.stderr)
         return
 
-    script = "#!/bin/sh\npython scripts/context_daemon.py --mode pre-commit --auto-patch\n"
-    hook_path.write_text(script, encoding="utf-8")
+    hook_path = hooks_dir / "pre-commit"
+
     try:
-        hook_path.chmod(0o755)
+        daemon_rel = Path(__file__).resolve().relative_to(repo_root.resolve()).as_posix()
     except Exception:
-        pass
-    print("Installed pre-commit hook.")
+        daemon_rel = "scripts/context_daemon.py"
+        for cand in [
+            ".agents/skills/gemini-context-engineer/scripts/context_daemon.py",
+            ".gemini/skills/gemini-context-engineer/scripts/context_daemon.py",
+            "scripts/context_daemon.py",
+        ]:
+            if (repo_root / cand).exists():
+                daemon_rel = cand
+                break
+
+    hook_cmd = f"python {daemon_rel} --mode pre-commit --auto-patch"
+    hook_entry = f"# gemini-context-engineer pre-commit hook\n{hook_cmd}\n"
+
+    existing_content = ""
+    if hook_path.exists():
+        try:
+            existing_content = hook_path.read_text(encoding="utf-8")
+        except Exception:
+            existing_content = ""
+
+    if "context_daemon.py" in existing_content:
+        print("pre-commit hook for context_daemon already installed.")
+        return
+
+    if existing_content.strip():
+        new_content = existing_content.rstrip() + "\n\n" + hook_entry
+    else:
+        new_content = "#!/bin/sh\n\n" + hook_entry
+
+    try:
+        fd, tmp = tempfile.mkstemp(dir=str(hooks_dir), prefix="tmp.")
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(new_content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, str(hook_path))
+        try:
+            hook_path.chmod(0o755)
+        except Exception:
+            pass
+        print("Installed pre-commit hook.")
+    except Exception as e:
+        print(f"Error installing pre-commit hook: {e}", file=sys.stderr)
 
 
 def main():

@@ -1,6 +1,6 @@
 ---
 name: repo-blast-radius-sync
-description: Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync
+description: "Use when checking code changes for orphaned callers, outdated tests, or stale documentation, discovering change blast radius, or verifying git staged parity against the dependency registry"
 ---
 
 # repo-blast-radius-sync
@@ -16,7 +16,7 @@ description: Use when modifying, refactoring, adding features, or fixing bugs in
 - Updating tests or reference docs that may drift from implementation
 - When NOT to use: isolated typo with no code coupling, or one-off note outside blast radius
 
-Keywords: orphan, blast radius, verify_parity, blast_radius.py, staged, parity gate, build_registry.py, draft_doc_updates.py
+Keywords: orphan-prevention, blast-radius, staged-parity, dependency-graph, doc-coupling, caller-sync, verify_parity, registry-parity
 
 ## Quick Reference
 | Situation | Action |

@@ -14,30 +14,28 @@
 ---
 
 ## ✅ What Was Accomplished
-1. **GitHub Release v1.1.1 Publication & CI Automation (WS-015)**:
-   - Published official GitHub Release `v1.1.1` via `gh release create` with formatted notes from `CHANGELOG.md`.
-   - Updated `.github/workflows/release.yml` to automatically create GitHub Releases on future tag pushes.
-   - Upgraded Node.js runner target to Node 22 LTS in release workflows.
-2. **Repository Staging Cleanliness (WS-016)**:
-   - Added `The Created Skills/` to `.gitignore`, silencing 35+ untracked scratch files from `git status`.
-3. **Canonical Skill #5 Authoring (`skill-creator`) via RED-GREEN-REFACTOR**:
-   - RED: Wrote 3 pressure scenarios in `tests/test_skill_creator_pressure.py` verifying kebab-case regex validation, deterministic scaffolding, and validator compliance.
-   - GREEN: Authored `.agents/skills/skill-creator/SKILL.md` (0 warnings) and pure Python stdlib scaffolding utility `scripts/init_skill.py`.
-   - REFACTOR: Updated `manifest.json`, compiled native adapters across 8 host ecosystems (`scripts/compile_adapters.py`), and distributed installations via `install.ps1 -Force`.
-4. **Verification & Testing**:
-   - `python scripts/validate.py`: 0 errors, 0 warnings across all 5 canonical skills, templates, and installed host mirrors.
-   - `python scripts/release_sync.py --check`: 0 drift.
-   - Root regression test suite: 18/18 tests PASS across 7 test files.
-5. **Documentation**:
-   - Updated `docs/product/product.md`, `CONTINUITY.md`, and `docs/sessions/HANDOFF.md`.
+1. **Skills Collision, Cross-Impact Audit & Isolation Architecture (WS-017)**:
+   - Audited all 5 skills across code coupling, storage/state collision, Git hook clobbering, installer granularity, and LLM trigger overlaps.
+   - Code coupling confirmed 100% decoupled (0 cross-skill Python imports; all skills stdlib-only).
+   - Upgraded PowerShell installer (`install.ps1`) with `-Skill <name|list|all>` supporting comma-separated selective installation, validation against canonical skills, and receipt recording.
+   - Upgraded POSIX installer (`install.sh`) with `-s|--skill <all|skills>` supporting comma-separated selective installation and POSIX receipt tracking.
+   - Replaced destructive hook overwriting in `context_daemon.py` and `release_sync.py` with idempotent, non-destructive appending in `.git/hooks/pre-commit`.
+   - Disambiguated cognitive trigger boundaries in frontmatters and keywords: architectural reality drift (`gemini-context-engineer`), semver parity drift (`release-sync`), staged blast radius (`repo-blast-radius-sync`), and deterministic contract verification (`repo-standards-engineer`).
+   - Re-compiled adapters (`scripts/compile_adapters.py`), updated manifest, and synced host mirrors.
+   - Authored and verified `tests/test_skill_isolation_and_portability.py` (4/4 PASS).
+   - Executed full test suite: 9/9 test suites passing (22+ individual tests PASS).
+   - Verified zero validator warnings (`validate.py`) and zero release drift (`release_sync.py --check`).
+2. **Prior Releases & Canonical Skills**:
+   - v1.1.1 live on npmjs, GitHub Packages, and GitHub Releases.
+   - 5 canonical skills (`gemini-context-engineer`, `release-sync`, `repo-blast-radius-sync`, `repo-standards-engineer`, `skill-creator`) installed across 8 hosts.
 
 ---
 
 ## 🔄 In Progress / Blocked
-- *None*: The workspace is 100% green and pristine.
+- *None*: All workstreams complete, verified, and passing CI gates.
 
 ---
 
 ## ⏭️ Next Session Priorities
-1. Author next canonical skill (e.g., `multi-agent-orchestrator`, `ast-refactorer`) using `python scripts/init_skill.py <name>`.
+1. Author next canonical skill (e.g. `multi-agent-orchestrator`, `ast-refactorer`) using `python scripts/init_skill.py <name>`.
 2. Monitor CI runs on GitHub Actions.

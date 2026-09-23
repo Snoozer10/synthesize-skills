@@ -286,12 +286,37 @@ OSError: [Errno 18] Invalid cross-device link
 **Cause:** Git worktrees store a pointer file at `.git` rather than a directory, and moving temp files across volumes or non-existent directories causes `EXDEV` or `FileNotFoundError`.
 **Resolution:** Resolve hook directory dynamically via `git rev-parse --git-dir` + `/hooks`, and write temporary atomic files directly in `target.parent`.
 
+### Destructive Git Hook Clobbering in Multi-Skill Repositories
+**Error:**
+Installing a second skill or tool (e.g. `release_sync.py --install-hooks` after `context_daemon.py --install-hooks`) wipes out the first tool's pre-commit checks from `.git/hooks/pre-commit`.
+**Cause:**
+Both tools unconditionally overwrite `.git/hooks/pre-commit` via `write_text()` or atomic replacement without inspecting existing hook contents.
+**Resolution:**
+Inspect existing `.git/hooks/pre-commit` content before writing:
+1. If file does not exist, create with `#!/bin/sh\n\n<command>\n`.
+2. If file exists, check if `<command>` identifier is already present (idempotency).
+3. If not present, append `\n# <tool> pre-commit hook\n<command>\n`.
+4. Write atomically using `tempfile.mkstemp` and `os.replace` within the same filesystem directory.
+
+### Greedy Multiline Regex Matching Across Unquoted Frontmatter
+**Error:**
+```
+error: version drift: VERSION=1.0.0 GEMINI.md=1.0.0
+---
+```
+**Cause:**
+Regex pattern `r'^version:\s*["\']?([^"\']+)["\']?'` with `re.MULTILINE` uses `[^"\']` which matches across newline characters if quotes are omitted, capturing subsequent YAML content and `---` delimiters into the version string.
+**Resolution:**
+Use non-newline character classes: `r'^version:\s*["\']?([^"\'\r\n]+)["\']?'` so that parsing stops at line boundaries. Always quote version fields in frontmatter (`version: "1.1.1"`).
+
 ---
 
 ## Maintenance Notes
 
 | Error Pattern | Frequency | Last Seen | Status |
 |---------------|-----------|-----------|--------|
+| Destructive Git Hook Clobbering | High | 2026-09-23 | Resolved |
+| Greedy Multiline Regex | Medium | 2026-09-23 | Resolved |
 | Anti-Premature Completion (Zero Assertions) | High | 2026-09-23 | Resolved |
 | Windows cp1256 / Console Unicode Crash | High | 2026-09-23 | Resolved |
 | Git Worktree EXDEV on Hook Install | Medium | 2026-09-23 | Resolved |

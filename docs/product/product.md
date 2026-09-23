@@ -65,8 +65,12 @@ Workspace and developer tooling for authoring, testing, validating, and installi
   7. Windsurf (`.windsurf/skills`, `.windsurf/rules`)
   8. GitHub Copilot (`.copilot/skills`)
 - **Installers**:
-  - `install.ps1`: Pure PowerShell native installer with lock files, staging buffers, `.bak` backups, and `-Rollback`.
-  - `install.sh`: Pure POSIX shell installer with identical safety semantics and rollback.
+  - `install.ps1`: Pure PowerShell native installer with selective skill installation (`-Skill <name>`), lock files, staging buffers, `.bak` backups, and `-Rollback`.
+  - `install.sh`: Pure POSIX shell installer with selective skill installation (`--skill <name>`), identical safety semantics, and rollback.
 - **Compilers**:
   - `scripts/manifest.py`: Maps canonical skills to host install targets.
   - `scripts/compile_adapters.py`: Transpiles skills into native host prompt commands, markdown rules, and instructions.
+- **Isolation & Portability Architecture**:
+  - Zero code coupling: 100% independent standard library Python scripts per skill.
+  - Non-destructive Git pre-commit hook chaining: multiple skills install hooks into `.git/hooks/pre-commit` idempotently without overwriting each other.
+  - Disambiguated cognitive trigger boundaries: clear division between architectural drift (`gemini-context-engineer`), semver parity drift (`release-sync`), staged blast radius (`repo-blast-radius-sync`), and contract verification (`repo-standards-engineer`).

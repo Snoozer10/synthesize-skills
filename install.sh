@@ -14,6 +14,7 @@ LOCK_FILE="$RUNTIME_DIR/install.lock"
 
 SCOPE="project"
 TARGET="auto"
+SKILL="all"
 FORCE=0
 ROLLBACK=0
 
@@ -24,6 +25,7 @@ Usage: $0 [OPTIONS]
 Options:
   --scope <project|global>   Install scope (default: project)
   --target <auto|all|hosts>  Target hosts (default: auto; e.g. claude,codex,antigravity)
+  -s, --skill <all|skills>   Install specific skill(s) (comma-separated; default: all)
   --force                    Apply changes (default: dry-run)
   --rollback                 Rollback previous installation via receipt
   -h, --help                 Show this help message
@@ -36,6 +38,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --scope) SCOPE="$2"; shift 2 ;;
     --target) TARGET="$2"; shift 2 ;;
+    -s|--skill) SKILL="$2"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --rollback) ROLLBACK=1; shift ;;
     -h|--help) show_help ;;
@@ -119,8 +122,23 @@ calc_hash() {
 echo "=== Universal Multi-Agent Skills Installer (POSIX) ==="
 echo "Scope:  $SCOPE"
 echo "Target: $TARGET"
+echo "Skill:  $SKILL"
 echo "Action: $([ "$FORCE" -eq 1 ] && echo "APPLYING CHANGES" || echo "DRY-RUN (use --force to apply)")"
 echo ""
+
+if [ "$SKILL" != "all" ]; then
+  old_ifs="$IFS"
+  IFS=','
+  for req in $SKILL; do
+    req_trimmed="$(echo "$req" | tr -d '[:space:]')"
+    [ -z "$req_trimmed" ] && continue
+    if [ ! -d "$SRC/$req_trimmed" ]; then
+      echo "Error: Skill '$req_trimmed' not found in canonical skills directory '$SRC'" >&2
+      exit 1
+    fi
+  done
+  IFS="$old_ifs"
+fi
 
 process_target() {
   hid="$1"
@@ -160,6 +178,12 @@ process_target() {
   for d in "$SRC"/*/; do
     [ -d "$d" ] || continue
     sname="$(basename "$d")"
+    if [ "$SKILL" != "all" ]; then
+      case ",$SKILL," in
+        *,"$sname",*) ;;
+        *) continue ;;
+      esac
+    fi
     dest_skill="$tbase/$sname"
 
     # Exclude __pycache__ and *.pyc
@@ -211,6 +235,7 @@ if [ "$FORCE" -eq 1 ]; then
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date +%Y-%m-%dT%H:%M:%SZ)",
   "scope": "$SCOPE",
   "target": "$TARGET",
+  "skill": "$SKILL",
   "installed": [
 $(if [ -f "$TRACK_DIR/installed.txt" ]; then
     sed 's/\\/\\\\/g; s/"/\\"/g; s/^/    "/; s/$/",/' "$TRACK_DIR/installed.txt" | sed '$ s/,$//'

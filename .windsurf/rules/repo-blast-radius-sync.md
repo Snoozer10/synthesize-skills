@@ -1,4 +1,4 @@
 # Windsurf Rule: repo-blast-radius-sync
-Description: Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync
+Description: "Use when checking code changes for orphaned callers, outdated tests, or stale documentation, discovering change blast radius, or verifying git staged parity against the dependency registry"
 
 Reference: `.agents/skills/repo-blast-radius-sync/SKILL.md`

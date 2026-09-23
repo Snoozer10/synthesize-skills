@@ -1,11 +1,11 @@
 ---
-description: ""Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications""
+description: ""Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping feature specs, or verifying deterministic executable contracts in specs directory""
 globs: ["*"]
 alwaysApply: false
 ---
 
 # repo-standards-engineer Rule
-"Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications"
+"Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping feature specs, or verifying deterministic executable contracts in specs directory"
 
 Before applying this rule, read and comply with:
 - `.agents/skills/repo-standards-engineer/SKILL.md`

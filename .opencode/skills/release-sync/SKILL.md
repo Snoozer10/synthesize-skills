@@ -1,6 +1,6 @@
 ---
 name: release-sync
-description: "Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major, minor, or patch versions"
+description: "Use when detecting release semver version drift across VERSION, GEMINI.md, and package.json, maintaining CHANGELOG and README release hygiene, or atomically bumping release versions"
 ---
 
 # release-sync
@@ -15,7 +15,7 @@ description: "Use when VERSION, GEMINI.md, or package.json versions may drift, w
 - Bumping major|minor|patch version
 - When NOT to use: unrelated code edits, no version files present
 
-Keywords: version, drift, parity, semver, bump, release, VERSION, GEMINI.md, package.json
+Keywords: release-semver, version-drift, atomic-bump, semver-parity, release-hygiene, VERSION, GEMINI.md, package.json
 
 ## Quick Reference
 | Situation | Action |

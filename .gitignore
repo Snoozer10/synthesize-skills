@@ -13,6 +13,7 @@ Thumbs.db
 # Backups
 *~
 *.bak
+*.bak-*
 *_backup/
 backup/
 

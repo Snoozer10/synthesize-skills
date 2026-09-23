@@ -1,11 +1,11 @@
 ---
-description: ""Use when creating, updating, auditing, or federating GEMINI.md workspace context files, mapping repository architecture and deep modules, compiling token-bounded task slices, guarding Git pre-commit boundaries, or verifying workstream execution proofs""
+description: ""Use when creating, updating, auditing, or federating GEMINI.md workspace context files, detecting architectural reality drift between code and architecture docs, compiling token-bounded task slices, or verifying workstream proof commands""
 globs: ["*"]
 alwaysApply: false
 ---
 
 # gemini-context-engineer Rule
-"Use when creating, updating, auditing, or federating GEMINI.md workspace context files, mapping repository architecture and deep modules, compiling token-bounded task slices, guarding Git pre-commit boundaries, or verifying workstream execution proofs"
+"Use when creating, updating, auditing, or federating GEMINI.md workspace context files, detecting architectural reality drift between code and architecture docs, compiling token-bounded task slices, or verifying workstream proof commands"
 
 Before applying this rule, read and comply with:
 - `.agents/skills/gemini-context-engineer/SKILL.md`

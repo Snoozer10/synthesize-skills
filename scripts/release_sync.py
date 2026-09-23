@@ -275,11 +275,43 @@ def install_hooks(root):
     except Exception:
         pass
     hook = hooks_dir / "pre-commit"
-    content = "#!/bin/sh\n# release_sync pre-commit hook\npython scripts/release_sync.py --check || exit 1\n"
+
+    try:
+        rel_script = Path(__file__).resolve().relative_to(root.resolve()).as_posix()
+    except Exception:
+        rel_script = "scripts/release_sync.py"
+        for cand in [
+            "scripts/release_sync.py",
+            ".agents/skills/release-sync/scripts/check.py",
+            ".gemini/skills/release-sync/scripts/check.py",
+        ]:
+            if (root / cand).exists():
+                rel_script = cand
+                break
+
+    hook_cmd = f"python {rel_script} --check || exit 1"
+    hook_entry = f"# release_sync pre-commit hook\n{hook_cmd}\n"
+
+    existing_content = ""
+    if hook.exists():
+        try:
+            existing_content = hook.read_text(encoding="utf-8")
+        except Exception:
+            existing_content = ""
+
+    if "release_sync.py" in existing_content or "release-sync" in existing_content:
+        print(f"pre-commit hook for release_sync already installed in {hook}")
+        return 0
+
+    if existing_content.strip():
+        new_content = existing_content.rstrip() + "\n\n" + hook_entry
+    else:
+        new_content = "#!/bin/sh\n\n" + hook_entry
+
     try:
         fd, tmp = tempfile.mkstemp(dir=str(hooks_dir), prefix="tmp.")
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-            f.write(content)
+            f.write(new_content)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, str(hook))
