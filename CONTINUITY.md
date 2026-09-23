@@ -10,7 +10,7 @@
 **Date:** 2026-09-23
 **Branch:** main
 **Version:** 1.1.0 (tags: v1.0.0, v1.0.1, v1.1.0 live)
-**Active Workstream:** Post-Release Operational Verification (COMPLETE)
+**Active Workstream:** Standby (Awaiting user assignment)
 
 ---
 
@@ -39,7 +39,7 @@
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| WS-011 | Post-Release Operational Monitoring | 🟢 **ACTIVE** | None |
+| — | *None (Standby)* | ⏸️ **STANDBY** | None |
 
 ---
 
@@ -47,7 +47,6 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
-| WS-012 | Next skill development cycle | WS-011 complete | RED-GREEN-REFACTOR for new skill |
 | WS-014 | Rotate NPM_TOKEN secret | Dec 6, 2026 | Prevent CI publish auth failures on token expiry |
 
 ---
@@ -82,19 +81,19 @@
 
 ```
 synthesize-skills/
-├── .agents/skills/           # 3 skills (canonical)
+├── .agents/skills/           # 4 skills (canonical)
 ├── docs/
 │   ├── error-solving/        # understood-errors.md
 │   ├── handoff.md            # session handoff template
 │   └── ...
 ├── exercises/
 │   └── 04-release-sync/      # 2 exercises (drift, atomic-bump)
-├── GEMINI.md                 # v1.0.1, 2026-09-14, +3 learnings
+├── GEMINI.md                 # v1.1.0, 2026-09-22
 ├── CONTINUITY.md             # THIS FILE
 ├── README.md                 # GitHub Packages badge, dual install
 ├── CHANGELOG.md              # [Unreleased] entries
-├── VERSION                   # 1.0.1
-└── package.json              # 1.0.1
+├── VERSION                   # 1.1.0
+└── package.json              # 1.1.0
 ```
 
 ---
@@ -109,4 +108,4 @@ synthesize-skills/
 
 ---
 
-*Updated by orchestrator on 2026-09-14. Next update: after WS-007 npm automation token configured.*
+*Updated on 2026-09-23.*
