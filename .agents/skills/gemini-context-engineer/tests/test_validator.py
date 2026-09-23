@@ -321,5 +321,61 @@ last_indexed: "2026-09-03"
         self.assertEqual(res_file.returncode, 0)
 
 
+    def test_federated_hybrid_preserves_content_and_no_warning(self):
+        gemini_path = self.test_path / "GEMINI.md"
+        gemini_path.touch()
+
+        # Hybrid AGENTS.md with bounded banner and substantive content
+        hybrid_agents = (
+            "<!-- AGENT-SYNC: GEMINI.md:start -->\n"
+            "<!-- AGENT-SYNC: GEMINI.md -->\n"
+            "> [!IMPORTANT]\n"
+            "> **AUTHORITATIVE CONTEXT DIRECTIVE**:\n"
+            "> Read [GEMINI.md](./GEMINI.md) now and use it as the current project guidance where it differs from AGENTS.md.\n"
+            "> `GEMINI.md` is the canonical Single Source of Truth (SSOT) for this repository's architecture, engineering constraints, workflows, and standards.\n"
+            "> All rules, commands, and workstream states defined in `GEMINI.md` supersede any conflicting instructions below.\n"
+            "<!-- AGENT-SYNC: GEMINI.md:end -->\n\n"
+            "# Custom OpenCode Orchestrator Config\n"
+            "Subagent permissions: read: allow, edit: deny.\n"
+        )
+        (self.test_path / "AGENTS.md").write_text(hybrid_agents, encoding="utf-8")
+
+        content = self.get_valid_frontmatter() + "# Project Context: Main Title\n"
+        required_h2s = [
+            "## 🎯 Project Overview",
+            "## 🏗️ Architecture & Component Mapping",
+            "## 🛑 Mandatory Engineering Constraints",
+            "## 🛠️ Common Workflows & CLI Commands",
+            "## 🔄 Active Workstreams & Verification Status",
+        ]
+        content += "\n".join(required_h2s) + "\n"
+
+        # AGENTS.md is hybrid - should NOT trigger split brain warning
+        diag = validate_markdown(content, gemini_path, self.test_path)
+        self.assertFalse(any("WARN_SPLIT_BRAIN_CONTEXT: 'AGENTS.md'" in w for w in diag["warnings"]))
+
+        # Divergent CLAUDE.md without banner
+        claude_orig = "# Custom Claude Rules\nDo not use pip.\n"
+        (self.test_path / "CLAUDE.md").write_text(claude_orig, encoding="utf-8")
+
+        diag2 = validate_markdown(content, gemini_path, self.test_path)
+        self.assertTrue(any("WARN_SPLIT_BRAIN_CONTEXT: 'CLAUDE.md'" in w for w in diag2["warnings"]))
+
+        # Validate with federate=True: CLAUDE.md should be updated non-destructively
+        diag3 = validate_markdown(content, gemini_path, self.test_path, federate=True)
+        self.assertFalse(any("WARN_SPLIT_BRAIN_CONTEXT: 'CLAUDE.md'" in w for w in diag3["warnings"]))
+
+        claude_updated = (self.test_path / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertIn("Do not use pip.", claude_updated)
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:start -->", claude_updated)
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:end -->", claude_updated)
+
+        # Idempotence: run again with federate=True
+        diag4 = validate_markdown(content, gemini_path, self.test_path, federate=True)
+        claude_updated_2 = (self.test_path / "CLAUDE.md").read_text(encoding="utf-8")
+        self.assertEqual(claude_updated_2.count("<!-- AGENT-SYNC: GEMINI.md:start -->"), 1)
+        self.assertIn("Do not use pip.", claude_updated_2)
+
+
 if __name__ == "__main__":
     unittest.main()

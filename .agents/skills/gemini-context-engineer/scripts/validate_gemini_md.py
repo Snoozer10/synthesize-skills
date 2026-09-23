@@ -14,6 +14,138 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
+BANNER_BLOCK_RE = re.compile(
+    r"<!-- AGENT-SYNC: GEMINI\.md:start -->.*?<!-- AGENT-SYNC: GEMINI\.md:end -->\r?\n*",
+    re.DOTALL
+)
+LEGACY_SHIM_RE = re.compile(
+    r"<!-- AGENT-SYNC: GEMINI\.md -->\s*(?:# Synced Context[^\n]*)?\s*(?:This repository uses \[GEMINI\.md\]\(\./GEMINI\.md\)[^\n]*)?\r?\n*",
+    re.DOTALL
+)
+FRONTMATTER_RE = re.compile(
+    r"^---\r?\n.*?\r?\n---\r?\n*",
+    re.DOTALL
+)
+MAGIC_TOKEN = "<!-- AGENT-SYNC: GEMINI.md -->"
+
+
+def get_federation_banner(target_filename: str) -> str:
+    return (
+        "<!-- AGENT-SYNC: GEMINI.md:start -->\n"
+        "<!-- AGENT-SYNC: GEMINI.md -->\n"
+        "> [!IMPORTANT]\n"
+        "> **AUTHORITATIVE CONTEXT DIRECTIVE**:\n"
+        f"> Read [GEMINI.md](./GEMINI.md) now and use it as the current project guidance where it differs from {target_filename}.\n"
+        "> `GEMINI.md` is the canonical Single Source of Truth (SSOT) for this repository's architecture, engineering constraints, workflows, and standards.\n"
+        "> All rules, commands, and workstream states defined in `GEMINI.md` supersede any conflicting instructions below.\n"
+        "<!-- AGENT-SYNC: GEMINI.md:end -->"
+    )
+
+
+def classify_federation_file(fpath: Path) -> tuple[str, str]:
+    if not fpath.exists() and not fpath.is_symlink():
+        return ("missing", "")
+    if fpath.is_symlink():
+        return ("symlink", "")
+    try:
+        content = fpath.read_text(encoding="utf-8")
+    except Exception:
+        return ("divergent", "")
+
+    has_banner = bool(BANNER_BLOCK_RE.search(content))
+    has_magic = MAGIC_TOKEN in content
+
+    if not has_banner and not has_magic:
+        return ("divergent", content)
+
+    stripped = BANNER_BLOCK_RE.sub("", content)
+    stripped = LEGACY_SHIM_RE.sub("", stripped)
+    stripped_text = stripped.strip()
+
+    if not stripped_text or stripped_text.startswith("# Synced Context"):
+        return ("pointer_shim", content)
+    else:
+        return ("federated_hybrid", content)
+
+
+def inject_or_update_federation(fpath: Path, target_filename: str = None) -> str:
+    if target_filename is None:
+        target_filename = fpath.name
+    status, content = classify_federation_file(fpath)
+    if status == "symlink":
+        return "symlink"
+
+    banner = get_federation_banner(target_filename)
+
+    if status == "missing" or not content.strip():
+        fpath.parent.mkdir(parents=True, exist_ok=True)
+        pointer_content = (
+            f"{banner}\n\n"
+            f"# Synced Context: {target_filename}\n"
+            "This repository uses [GEMINI.md](./GEMINI.md) as the authoritative context file. "
+            "Please refer to GEMINI.md for all project instructions, architecture, and constraints.\n"
+        )
+        fpath.write_text(pointer_content, encoding="utf-8")
+        return "pointer_shim"
+
+    if BANNER_BLOCK_RE.search(content):
+        m = BANNER_BLOCK_RE.search(content)
+        prefix = content[:m.start()]
+        suffix = content[m.end():].lstrip("\r\n")
+        if suffix:
+            new_content = f"{prefix}{banner}\n\n{suffix}"
+        else:
+            new_content = f"{prefix}{banner}\n"
+        if new_content != content:
+            fpath.write_text(new_content, encoding="utf-8")
+        stripped = BANNER_BLOCK_RE.sub("", new_content)
+        stripped = LEGACY_SHIM_RE.sub("", stripped).strip()
+        if not stripped or stripped.startswith("# Synced Context"):
+            return "pointer_shim"
+        return "federated_hybrid"
+
+    if MAGIC_TOKEN in content:
+        fm = FRONTMATTER_RE.match(content)
+        if fm:
+            frontmatter_part = content[:fm.end()]
+            body_part = content[fm.end():]
+            body_no_legacy = LEGACY_SHIM_RE.sub("", body_part).lstrip("\r\n")
+            if not body_no_legacy.strip() or body_no_legacy.strip().startswith("# Synced Context"):
+                new_content = (
+                    f"{frontmatter_part}{banner}\n\n"
+                    f"# Synced Context: {target_filename}\n"
+                    "This repository uses [GEMINI.md](./GEMINI.md) as the authoritative context file. "
+                    "Please refer to GEMINI.md for all project instructions, architecture, and constraints.\n"
+                )
+                fpath.write_text(new_content, encoding="utf-8")
+                return "pointer_shim"
+            new_content = f"{frontmatter_part}{banner}\n\n{body_no_legacy}"
+        else:
+            body_no_legacy = LEGACY_SHIM_RE.sub("", content).lstrip("\r\n")
+            if not body_no_legacy.strip() or body_no_legacy.strip().startswith("# Synced Context"):
+                new_content = (
+                    f"{banner}\n\n"
+                    f"# Synced Context: {target_filename}\n"
+                    "This repository uses [GEMINI.md](./GEMINI.md) as the authoritative context file. "
+                    "Please refer to GEMINI.md for all project instructions, architecture, and constraints.\n"
+                )
+                fpath.write_text(new_content, encoding="utf-8")
+                return "pointer_shim"
+            new_content = f"{banner}\n\n{body_no_legacy}"
+        fpath.write_text(new_content, encoding="utf-8")
+        return "federated_hybrid"
+
+    fm = FRONTMATTER_RE.match(content)
+    if fm:
+        frontmatter_part = content[:fm.end()]
+        body_part = content[fm.end():].lstrip("\r\n")
+        new_content = f"{frontmatter_part}{banner}\n\n{body_part}"
+    else:
+        new_content = f"{banner}\n\n{content.lstrip(chr(10)).lstrip(chr(13))}"
+    fpath.write_text(new_content, encoding="utf-8")
+    return "federated_hybrid"
+
+
 
 def strip_variation_selectors(text: str) -> str:
     return text.replace("\ufe0f", "")
@@ -359,46 +491,24 @@ def validate_markdown(
                 f"ERR_DAG_CYCLE: Circular dependency detected in workstreams: {cycle}"
             )
 
-    for fname in ("CLAUDE.md", "AGENTS.md"):
+    for fname in ("CLAUDE.md", "AGENTS.md", ".cursorrules"):
         fpath = repo_root / fname
-        status = "missing"
-        if fpath.is_symlink():
-            status = "symlink"
-        elif fpath.exists():
-            try:
-                f_content = fpath.read_text(encoding="utf-8")
-                if "<!-- AGENT-SYNC: GEMINI.md -->" in f_content or "GEMINI.md" in f_content:
-                    status = "pointer_shim"
-                else:
-                    status = "divergent"
-            except Exception:
-                status = "divergent"
+        status, _ = classify_federation_file(fpath)
 
         if status == "divergent":
             diagnostics["warnings"].append(
                 f"WARN_SPLIT_BRAIN_CONTEXT: '{fname}' exists and diverges from GEMINI.md. Run with --federate to align."
             )
 
-        if federate and status in ("divergent", "missing"):
-            try:
-                if fpath.exists():
-                    fpath.unlink()
-                os.symlink("GEMINI.md", fpath)
-                if status == "divergent":
-                    diagnostics["warnings"] = [
-                        w
-                        for w in diagnostics["warnings"]
-                        if not w.startswith(f"WARN_SPLIT_BRAIN_CONTEXT: '{fname}'")
-                    ]
-            except OSError:
-                shim = "<!-- AGENT-SYNC: GEMINI.md -->\n# Synced Context\nThis repository uses [GEMINI.md](./GEMINI.md) as the authoritative context file. Please refer to GEMINI.md for all project instructions, architecture, and constraints.\n"
-                fpath.write_text(shim, encoding="utf-8")
-                if status == "divergent":
-                    diagnostics["warnings"] = [
-                        w
-                        for w in diagnostics["warnings"]
-                        if not w.startswith(f"WARN_SPLIT_BRAIN_CONTEXT: '{fname}'")
-                    ]
+        if federate and status != "symlink":
+            inject_or_update_federation(fpath, fname)
+            if status == "divergent":
+                diagnostics["warnings"] = [
+                    w
+                    for w in diagnostics["warnings"]
+                    if not w.startswith(f"WARN_SPLIT_BRAIN_CONTEXT: '{fname}'")
+                ]
+
 
     return diagnostics
 
