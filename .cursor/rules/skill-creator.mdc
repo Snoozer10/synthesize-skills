@@ -1,0 +1,11 @@
+---
+description: "Use when authoring, scaffolding, validating, or packaging new reusable AI-agent skills across multiple agent ecosystems."
+globs: ["*"]
+alwaysApply: false
+---
+
+# skill-creator Rule
+Use when authoring, scaffolding, validating, or packaging new reusable AI-agent skills across multiple agent ecosystems.
+
+Before applying this rule, read and comply with:
+- `.agents/skills/skill-creator/SKILL.md`

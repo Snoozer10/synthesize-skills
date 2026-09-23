@@ -9,7 +9,7 @@
 
 **Date:** 2026-09-23
 **Branch:** main
-**Version:** 1.1.1 (tags: v1.0.0, v1.0.1, v1.1.0 live; v1.1.1 pending tag push)
+**Version:** 1.1.1 (tags: v1.0.0, v1.0.1, v1.1.0, v1.1.1 live on npm & GitHub)
 **Active Workstream:** Standby (Awaiting user assignment)
 
 ---
@@ -34,6 +34,8 @@
 | WS-010 | Release v1.1.0 Dual Registry Publish | 2026-09-23 | Live on npmjs.org & GitHub Packages with SLSA provenance |
 | WS-013 | Comprehensive Skill Diagnostic, Hardening & Zero-Warning Remediation | 2026-09-23 | All 4 canonical skills + template pass validate.py (0 errors, 0 warnings); 7/7 evals pass; 12/12 pressure tests pass |
 | WS-014 | Release v1.1.1 Patch Semver Bump & Parity Sync | 2026-09-23 | Atomic 5-file bump 1.1.0 -> 1.1.1 via release_sync.py |
+| WS-015 | GitHub Release v1.1.1 Publication & CI Automation | 2026-09-23 | `gh release view v1.1.1` live; `.github/workflows/release.yml` automated with Node 22 |
+| WS-016 | Canonical Skill #5 (skill-creator) & Staging Cleanliness | 2026-09-23 | 5 skills across 8 hosts; validate.py 0 errors/0 warnings; 7/7 pressure tests PASS; git status pristine |
 
 ---
 

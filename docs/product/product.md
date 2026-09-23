@@ -44,6 +44,14 @@ Workspace and developer tooling for authoring, testing, validating, and installi
   - Spec Shaper (`shape_spec.py`) producing structured specs with acceptance criteria.
   - Executable Verification Engine (`verify_spec.py`) validating deterministic assertion suites.
 
+### 5. `skill-creator`
+- **Purpose**: Scaffolds, standardizes, and authors new reusable AI-agent skills.
+- **Features**:
+  - Stdlib-only CLI scaffolding utility (`scripts/init_skill.py`) generating specification-compliant skills.
+  - Enforces strict kebab-case naming regex and frontmatter trigger structure (`Use when...`).
+  - Zero-warning baseline out-of-the-box passing `scripts/validate.py`.
+  - Multi-host compilation compatibility across all 8 supported agent ecosystems.
+
 ---
 
 ## 🚀 Installation & Multi-Host Adapters

@@ -38,5 +38,15 @@
     "cursor": ".cursor/skills/repo-standards-engineer",
     "windsurf": ".windsurf/skills/repo-standards-engineer",
     "copilot": ".copilot/skills/repo-standards-engineer"
+  },
+  "skill-creator": {
+    "agents": ".agents/skills/skill-creator",
+    "claude": ".claude/skills/skill-creator",
+    "opencode": ".opencode/skills/skill-creator",
+    "gemini": ".gemini/skills/skill-creator",
+    "codex": ".codex/skills/skill-creator",
+    "cursor": ".cursor/skills/skill-creator",
+    "windsurf": ".windsurf/skills/skill-creator",
+    "copilot": ".copilot/skills/skill-creator"
   }
 }
