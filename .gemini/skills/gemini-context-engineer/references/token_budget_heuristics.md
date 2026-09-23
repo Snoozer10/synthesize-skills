@@ -111,3 +111,42 @@ When compressing content to meet budget thresholds:
      ```bash
      python scripts/verify_proofs.py --file GEMINI.md --workstream #1
      ```
+
+---
+
+## 5. The Sharding & Archive Taxonomy
+
+When a context file (`GEMINI.md` or `CONTINUITY.md`) accumulates excessive volume exceeding density thresholds (>350 lines or >2,500 estimated tokens), execute automated context decomposition via `scripts/prune_context.py`.
+
+The pruning engine applies a structured sharding and archiving taxonomy to relocate detailed specifications, finished progress, and excess historical records to dedicated documentation artifacts under `docs/`:
+
+### 1. Rogue & Unsectioned Specifications → `docs/specs/<slug>.md`
+- **Trigger**: Non-canonical H2 sections outside the strict 5-tier anatomy (e.g. extensive protocol definitions, streaming contracts, or feature deep-dives dumped directly into `GEMINI.md`).
+- **Relocation Target**: `docs/specs/<kebab-case-slug>.md`
+- **Invariant Harvest**: Permanent engineering rules, negative constraints (`NEVER`, `MUST`, `ALWAYS`), and hardware/environment dependencies are extracted into Section 3 (`## 🛑 Mandatory Engineering Constraints`) under `### Technical & Environmental Invariants`.
+- **Link Citation**: A single-line GitHub-flavored alert pointer (`> [!NOTE] Detailed specification extracted to [slug](docs/specs/<slug>.md)`) is maintained under Section 2 (`## 🏗️ Architecture & Component Mapping`).
+
+### 2. Completed Workstream Slices → `docs/workstreams/archive.md`
+- **Trigger**: Section 5 (`## 🔄 Active Workstreams & Verification Status`) accumulates completed (`Done`) workstreams that clutter immediate agent attention.
+- **Relocation Target**: `docs/workstreams/archive.md`
+- **Behavior**: All completed workstream rows and their verification proof commands are preserved historically in chronological order in the archive.
+- **Immediate Focus**: Only active workstreams (`In Progress`, `Pending`, `Blocked`) remain in `GEMINI.md` to maintain a tight topological DAG focus.
+
+### 3. Surplus Learnings & Failure Modes → `docs/error-solving/understood-errors.md`
+- **Trigger**: Section 5 `### Known Failure Modes & Project Learnings` grows beyond the density budget (e.g. dozens of entries totaling thousands of tokens).
+- **Relocation Target**: `docs/error-solving/understood-errors.md`
+- **Behavior**: The top-N (default 7) most recent and critical learnings are preserved in `GEMINI.md`. Surplus entries are appended to the project's permanent error catalog, formatted with error name, causes, solutions, and preventive rules.
+
+### 4. Historical Session State → `docs/sessions/history/archive.md`
+- **Trigger**: `CONTINUITY.md` accumulates extensive historical milestone records (`- Historical Archive:`), causing context bloat across consecutive agent sessions.
+- **Relocation Target**: `docs/sessions/history/archive.md`
+- **Behavior**: The canonical session ledger (`CONTINUITY.md`) retains only current active state (Goal, Constraints, Key Decisions, Done/Now/Next, Open Questions), keeping file size compact ($\le 40$ lines, $\le 1,000$ tokens) while preserving complete historical lineage in the archive.
+
+### Pruning CLI Invocation
+```bash
+python scripts/prune_context.py [--file <path>] [--all] [--dry-run] [--apply] [--keep-learnings <N>]
+```
+- `--dry-run`: Analyzes density and previews line/token reductions in a terminal metrics table without mutating disk files.
+- `--apply`: Executes atomic file writes with automatic rotating `.bak` backups (up to 3 generations).
+- `--keep-learnings <N>`: Configures the threshold of learnings retained in Section 5 (default: 7).
+

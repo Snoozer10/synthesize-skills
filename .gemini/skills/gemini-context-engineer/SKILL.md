@@ -27,7 +27,7 @@ Execute the appropriate protocol based on user intent and repository lifecycle:
 3. **Intent Confirmation & Grilling**: If critical invariants, domain boundaries, or deployment targets are missing, initiate the Frontier Grilling Engine.
 4. **Anatomy Synthesis**: Synthesize ground-truth configuration data into the golden 5-tier anatomy.
 5. **Validation Gate**: Run `python <SKILL_DIR>/scripts/validate_gemini_md.py GEMINI.md --json --strict --reality`.
-6. **Cross-Ecosystem Federation (`--federate`)**: When requested or when satellite context files exist (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`), establish cross-ecosystem synchronization via symlinks or pointer shims.
+6. **Cross-Ecosystem Federation (`--federate`)**: When requested or when satellite context files exist (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`), inject a non-destructive authoritative SSOT directive banner (hybrid shims) or establish relative symlinks, preserving bespoke agent configs, permissions, and tool definitions while enforcing `GEMINI.md` as canonical SSOT.
 
 ### 2. UPDATE (Context Synchronization)
 1. Automatically detect when build dependencies, architectural patterns, directory structures, or primary entrypoints change.
@@ -47,7 +47,7 @@ Execute the appropriate protocol based on user intent and repository lifecycle:
 3. Extract bespoke invariants into `## 🛑 Mandatory Engineering Constraints`.
 4. Separate ephemeral task tracking into `## 🔄 Active Workstreams & Verification Status` as a DAG Tracer-Bullet table.
 5. Condense narrative prose into structured markdown tables and compact ASCII component topologies.
-6. Federate satellite context files (`--federate`) by converting them to symlinks or standardized pointer shims to eliminate split-brain drift.
+6. Federate satellite context files (`--federate`) via non-destructive authoritative SSOT directive injection (hybrid shims) or relative symlinks to eliminate split-brain drift while preserving existing agent instructions.
 
 ### 5. LEARN (Self-Healing Memory Loop)
 - **Trigger**: When a user corrects a misconception, an agent hallucinates an API/path/flag, or a bug post-mortem occurs during task execution.
@@ -108,6 +108,19 @@ Execute the appropriate protocol based on user intent and repository lifecycle:
      ```
      (Strictly maximum 3 rounds total, bypassable with `--yes` or non-interactive flags).
   4. **Crystallize Invariants**: Commit confirmed decisions as explicit, permanent constraints into Section 3 (`## 🛑 Mandatory Engineering Constraints`).
+
+### 10. PRUNE / SHARD (Context Density Pruning & Spec Extraction)
+- **When to Use**: Line count > 350 or tokens > 2,500, or when rogue non-5-tier sections exist.
+- **Protocol**:
+  1. **Execute Pruning CLI**:
+     ```powershell
+     python <SKILL_DIR>/scripts/prune_context.py [--file <path>] [--all] [--dry-run] [--apply] [--keep-learnings <N>]
+     ```
+  2. **Extract Rogue Specs**: Relocate unsectioned or rogue specifications into `docs/specs/<slug>.md` with a single-line alert pointer link in Section 2 (`## 🏗️ Architecture & Component Mapping`).
+  3. **Harvest Invariants**: Extract permanent technical and environmental invariants (`MUST`, `NEVER`, `ALWAYS`, hardware requirements) from rogue sections into Section 3 (`## 🛑 Mandatory Engineering Constraints`).
+  4. **Archive Completed Workstreams**: Relocate completed (`Done`) workstreams from Section 5 to `docs/workstreams/archive.md`, keeping active, in-progress, and pending workstreams intact.
+  5. **Compact Learnings**: Retain top-N (default 7) most critical learnings in Section 5, archiving surplus failure modes to `docs/error-solving/understood-errors.md`.
+  6. **Compact Session History**: Prune dead historical archives from `CONTINUITY.md` and relocate to `docs/sessions/history/archive.md`.
 
 ---
 
@@ -326,12 +339,17 @@ The skill relies on pure Python standard library scripts located in the skill's 
   - Safely aborts if executed from user home directory (`Path.home()`) without an explicit `--scope project` flag.
   - Performs AST Leverage Analysis on Python files (`ast.parse`) and regex heuristics on JS/TS/Go files: computes `leverage = LOC / max(1, interface_count)` to classify `deep_modules` ($\ge 8.0$) and `shallow_modules` ($< 2.5$).
   - `--grill`: Interactive frontier question generator probing for missing invariants, unindexed repositories, or ambiguous domain boundaries.
-  - `--federate`: Scans and aligns cross-ecosystem manifests (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`) via relative symlinks or standardized pointer shims. See [references/cross_ecosystem_federation.md](references/cross_ecosystem_federation.md).
+  - `--federate`: Scans and aligns cross-ecosystem manifests (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`) via non-destructive authoritative SSOT directive injection (hybrid shims) or relative symlinks. See [references/cross_ecosystem_federation.md](references/cross_ecosystem_federation.md).
   - `--shard <subdir>`: Bootstraps a scoped, 5-tier compliant child `GEMINI.md` within a monorepo subtree. See [references/hierarchical_context_guide.md](references/hierarchical_context_guide.md).
 
 - `python <SKILL_DIR>/scripts/validate_gemini_md.py [<path>] [--context-file <path>] [--file <path>] [--json] [--strict] [--fix-frontmatter] [--backup] [--federate] [--reality]`
   - Validates micro-YAML frontmatter, headers, links, DAG cycles, and reality drift (`--reality`). Supports standardized `--context-file` and `--file` aliases.
   - Returns exit code `0` on clean pass, `1` on error.
+
+- `python <SKILL_DIR>/scripts/prune_context.py [--file <path>] [--all] [--dry-run] [--apply] [--keep-learnings <N>]`
+  - Zero-dependency context decomposition and automated sharding engine.
+  - Automatically shards rogue H2 sections to `docs/specs/<slug>.md`, extracts invariants to Section 3, archives completed workstreams to `docs/workstreams/archive.md`, compacts learnings to `docs/error-solving/understood-errors.md`, and relocates historical session state from `CONTINUITY.md` to `docs/sessions/history/archive.md`.
+  - Supports `--dry-run` to preview savings without modifying disk, and `--keep-learnings <N>` (default 7).
 
 - `python <SKILL_DIR>/scripts/context_compiler.py [--root <path>] [--context-file <path>] [--file <path>] --files <file1,file2,...> [--task <string>] [--budget <int>] [--out <path>] [--json]`
   - Computes the Minimal Invariant Projection (MIP) for a target working set and task objective under token budget (default 600 tokens). Supports standardized `--context-file` and `--file` aliases.
@@ -352,7 +370,7 @@ The skill enforces deterministic performance and quality gates across all 7 benc
 | Evaluation Scenario | Metric / Assertion | Baseline / Target Threshold | Operational Objective |
 | :--- | :--- | :--- | :--- |
 | **`eval-1-polyglot-create`**<br>(Polyglot Repo Scan & Synthesis) | Execution Latency (`latency_ms`)<br>Context Token Count (`token_count`)<br>Process Exit Code (`exit_code`) | `< 500ms` (Target sub-60ms via `git ls-files`)<br>`< 2500` tokens (Target $\le 350$ lines)<br>`== 0` (Clean termination) | High-speed indexing without blocking turns; strict density budget. |
-| **`eval-2-federation-repair`**<br>(Satellite Context Sync) | Pointer Shim Alignment<br>Split-Brain Warnings | `pointer_shim == True`<br>`split_brain_warnings == 0` | Guarantees zero split-brain drift for `CLAUDE.md`, `AGENTS.md`, and `.cursorrules`. |
+| **`eval-2-federation-repair`**<br>(Satellite Context Sync) | Non-Destructive Hybrid / Pointer Shim Alignment<br>Split-Brain Warnings | `federated_hybrid == True` or `pointer_shim == True`<br>`split_brain_warnings == 0` | Guarantees zero split-brain drift and non-destructive injection for `CLAUDE.md`, `AGENTS.md`, and `.cursorrules`. |
 | **`eval-3-dag-cycle-detection`**<br>(Dependency Cycle Guard) | Diagnostic Code<br>Process Exit Code (`exit_code`) | `error_detected == "ERR_DAG_CYCLE"`<br>`== 1` (Fatal termination in strict mode) | Enforces strict DAG acyclicity in Section 5 workstreams via `graphlib.TopologicalSorter`. |
 | **`eval-4-reality-drift-detection`**<br>(Physical Filesystem Audit) | Diagnostic Code<br>Reality Drift Warning | `warning_detected == "WARN_REALITY_DRIFT"` | Enforces external ground-truth validation against physical disk state (`--reality`). |
 | **`eval-5-jit-compiler-slicing`**<br>(AST Dependency Slicing) | Latency (`latency_ms`)<br>Token Budget (`token_count`)<br>Invariants Preserved<br>Exit Code (`exit_code`) | `< 600ms`<br>`<= 500` tokens<br>`invariants_preserved == True`<br>`== 0` | JIT context compiler AST dependency slicing under tight token budget ($\le 600$ tokens). |

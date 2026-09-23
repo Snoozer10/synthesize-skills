@@ -42,7 +42,7 @@ def _read_gemini_version(root):
     if not p.exists():
         return ""
     t = p.read_text(encoding="utf-8")
-    m = re.search(r'^version:\s*["\']?([^"\']+)["\']?', t, re.MULTILINE)
+    m = re.search(r'^version:\s*["\']?([^"\'\r\n]+)["\']?', t, re.MULTILINE)
     return m.group(1).strip() if m else ""
 
 

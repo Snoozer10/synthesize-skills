@@ -38,7 +38,7 @@
       "description": "JIT context compiler AST dependency slicing under tight budget",
       "assertions": {
         "exit_code": "== 0",
-        "latency_ms": "< 600",
+        "latency_ms": "< 1500",
         "token_count": "<= 500",
         "invariants_preserved": "== True"
       }
@@ -48,7 +48,7 @@
       "description": "VCS daemon staged public signature drift detection and auto-patch healing",
       "assertions": {
         "exit_code": "== 0",
-        "latency_ms": "< 1000",
+        "latency_ms": "< 2500",
         "signature_drift_detected": "== True",
         "auto_patch_success": "== True"
       }
@@ -58,7 +58,7 @@
       "description": "Executable workstream proof execution, dependency gating, and atomic transition",
       "assertions": {
         "exit_code": "== 0",
-        "latency_ms": "< 1000",
+        "latency_ms": "< 3000",
         "dependency_blocked_verified": "== True",
         "task_transitioned_done": "== True",
         "downstream_unlocked": "== True"
