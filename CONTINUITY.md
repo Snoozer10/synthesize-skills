@@ -44,7 +44,7 @@
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| — | *None (Standby)* | ⏸️ **STANDBY** | None |
+| WS-019 | Context Decomposition, Sharding & Non-Destructive Federation | 🔄 **PLANNING / AWAITING APPROVAL** | User review of implementation plan |
 
 ---
 
@@ -52,6 +52,7 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
+| WS-019-EXEC | Execute Task 1-4 (prune_context.py, non-destructive federation, pressure tests) | WS-019 Approval | Implementation |
 | WS-018 | Rotate NPM_TOKEN secret | Dec 6, 2026 | Prevent CI publish auth failures on token expiry |
 
 ---

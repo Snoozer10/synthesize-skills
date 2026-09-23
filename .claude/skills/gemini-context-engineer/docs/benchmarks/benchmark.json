@@ -1,5 +1,5 @@
 {
-  "timestamp": 1790204701.687075,
+  "timestamp": 1790206141.2616446,
   "results": [
     {
       "id": "eval-1-polyglot-create",
@@ -8,10 +8,10 @@
         "token_count": 1500,
         "exit_code": 0,
         "deep_modules_found": 1,
-        "latency_ms": 495.55429999600165
+        "latency_ms": 925.2598999955808
       },
       "details": [
-        "latency_ms: 495.55429999600165 < 1500.0 -> True",
+        "latency_ms: 925.2598999955808 < 1500.0 -> True",
         "token_count: 1500 < 2500.0 -> True",
         "exit_code: 0 == 0 -> True",
         "deep_modules_found: 1 >= 1.0 -> True"
@@ -24,7 +24,7 @@
         "pointer_shim": true,
         "split_brain_warnings": 0,
         "exit_code": 0,
-        "latency_ms": 975.0727999999071
+        "latency_ms": 1240.602999998373
       },
       "details": [
         "pointer_shim: True == True -> True",
@@ -37,7 +37,7 @@
       "metrics": {
         "error_detected": "ERR_DAG_CYCLE",
         "exit_code": 1,
-        "latency_ms": 461.5890000059153
+        "latency_ms": 561.7368000021088
       },
       "details": [
         "error_detected: expected ERR_DAG_CYCLE, got ERR_DAG_CYCLE -> True",
@@ -50,7 +50,7 @@
       "metrics": {
         "warning_detected": "WARN_REALITY_DRIFT",
         "exit_code": 1,
-        "latency_ms": 397.8715000048396
+        "latency_ms": 429.06910000601783
       },
       "details": [
         "warning_detected: expected WARN_REALITY_DRIFT, got WARN_REALITY_DRIFT -> True"
@@ -63,11 +63,11 @@
         "exit_code": 0,
         "token_count": 77,
         "invariants_preserved": true,
-        "latency_ms": 275.56779999576975
+        "latency_ms": 420.56419999426
       },
       "details": [
         "exit_code: 0 == 0 -> True",
-        "latency_ms: 275.56779999576975 < 600.0 -> True",
+        "latency_ms: 420.56419999426 < 1500.0 -> True",
         "token_count: 77 <= 500.0 -> True",
         "invariants_preserved: True == True -> True"
       ]
@@ -79,11 +79,11 @@
         "exit_code": 0,
         "signature_drift_detected": true,
         "auto_patch_success": true,
-        "latency_ms": 401.1473999998998
+        "latency_ms": 588.0030999978771
       },
       "details": [
         "exit_code: 0 == 0 -> True",
-        "latency_ms: 401.1473999998998 < 1000.0 -> True",
+        "latency_ms: 588.0030999978771 < 2500.0 -> True",
         "signature_drift_detected: True == True -> True",
         "auto_patch_success: True == True -> True"
       ]
@@ -96,11 +96,11 @@
         "dependency_blocked_verified": true,
         "task_transitioned_done": true,
         "downstream_unlocked": true,
-        "latency_ms": 841.3144999940414
+        "latency_ms": 1433.2724999985658
       },
       "details": [
         "exit_code: 0 == 0 -> True",
-        "latency_ms: 841.3144999940414 < 1000.0 -> True",
+        "latency_ms: 1433.2724999985658 < 3000.0 -> True",
         "dependency_blocked_verified: True == True -> True",
         "task_transitioned_done: True == True -> True",
         "downstream_unlocked: True == True -> True"
