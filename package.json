@@ -1,6 +1,6 @@
 {
   "name": "@snoozer10/synthesize-skills",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Use when authoring or installing reusable AI-agent skills \u2014 validated SKILL.md + blast-radius parity gate + live dashboard",
   "license": "MIT",
   "type": "commonjs",

@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-24
+
+> [!NOTE]
+> **Minor Feature Release**: Adds Automated Context Decomposition & Sharding Engine (`prune_context.py`), Non-Destructive Cross-Agent Federation, and real-world context pressure testing to `gemini-context-engineer`. Eliminates context bloat and establishes `GEMINI.md` as the authoritative source of truth across Google Antigravity, Claude CLI/Desktop, OpenCode, Codex, Aider, and Cursor.
+
 ### Added
 - **Context Decomposition & Sharding Engine (`scripts/prune_context.py`)**: Added Protocol 10 (PRUNE / SHARD) to `gemini-context-engineer` to eliminate context bloat in `GEMINI.md` and `CONTINUITY.md` for large or long projects. Automatically shards rogue feature specs to `docs/specs/<slug>.md` with standardized `> [!NOTE]` pointer alerts left behind, preserves all permanent invariants (`MUST`, `NEVER`, `ALWAYS`, compiler/driver flags) in Section 3 under `### Technical & Environmental Invariants`, archives completed workstreams (`Done`) to `docs/workstreams/archive.md`, compacts Known Failure Modes to top 7 (archiving excess to `docs/error-solving/understood-errors.md`), and relocates historical session milestones to `docs/sessions/history/archive.md`. Implements atomic disk writes (`NamedTemporaryFile` + `os.replace` + `fsync`), rotating `.bak` files (max 3), and before/after metrics tables with percentage reductions.
 - **Non-Destructive Cross-Agent Federation Engine (`scripts/repo_indexer.py`, `validate_gemini_md.py`)**: Establishes `GEMINI.md` as the authoritative SSOT for Google Antigravity (2.0 / CLI / IDE) by non-destructively injecting bounded directive banners (`<!-- AGENT-SYNC: GEMINI.md:start -->` ... `:end -->`) into `CLAUDE.md` (Claude CLI & Desktop), `AGENTS.md` (OpenCode, Codex, Aider), and `.cursorrules` (Cursor). Preserves 100% of existing user tools, subagents, and configurations without wiping or replacing existing files with shims.
