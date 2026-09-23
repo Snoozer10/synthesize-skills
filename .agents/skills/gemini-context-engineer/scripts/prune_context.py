@@ -133,7 +133,8 @@ def rotate_backups(filepath: Path, max_backups: int = 3):
 
 def atomic_write_text(filepath: Path, content: str, encoding: str = "utf-8"):
     filepath.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile("w", dir=filepath.parent, delete=False, encoding=encoding) as tf:
+    content = content.replace("\r\n", "\n")
+    with tempfile.NamedTemporaryFile("w", dir=filepath.parent, delete=False, encoding=encoding, newline="\n") as tf:
         tf.write(content)
         tf.flush()
         os.fsync(tf.fileno())
@@ -164,10 +165,10 @@ def extract_invariants_from_text(text: str) -> list[str]:
 
 
 def update_frontmatter_last_indexed(content: str) -> str:
+    content = content.replace("\r\n", "\n")
     today_str = datetime.now().strftime("%Y-%m-%d")
-    if content.startswith("---\n") or content.startswith("---\r\n"):
-        delimiter = "\r\n" if "\r\n" in content[:10] else "\n"
-        parts = content.split(f"---{delimiter}", 2)
+    if content.startswith("---\n"):
+        parts = content.split("---\n", 2)
         if len(parts) >= 3:
             fm_text = parts[1]
             if re.search(r"^last_indexed:\s*.*$", fm_text, re.MULTILINE):
@@ -181,13 +182,14 @@ def update_frontmatter_last_indexed(content: str) -> str:
                 if not fm_text.endswith("\n"):
                     fm_text += "\n"
                 fm_text += f'last_indexed: "{today_str}"\n'
-            return f"---{delimiter}{fm_text}---{delimiter}{parts[2]}"
+            return f"---\n{fm_text}---\n{parts[2]}"
     return content
 
 
 def prune_gemini_md(
     content: str, repo_root: Path, keep_learnings: int = 7, dry_run: bool = False
 ) -> tuple[str, dict]:
+    content = content.replace("\r\n", "\n")
     stats_before = calculate_metrics(content)
     sharded_files = []
     extracted_invariants = []
@@ -196,11 +198,15 @@ def prune_gemini_md(
     content = update_frontmatter_last_indexed(content)
 
     # 1. Split content into sections based on H2 headers
-    # Find all '^## ' lines
+    # Find all '^## ' lines outside code blocks
     lines = content.splitlines(keepends=True)
     h2_indices = []
+    in_code_block = False
     for idx, line in enumerate(lines):
-        if line.startswith("## "):
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_code_block = not in_code_block
+        elif not in_code_block and line.startswith("## "):
             h2_indices.append(idx)
 
     sections = []
@@ -577,6 +583,7 @@ def prune_gemini_md(
 def prune_continuity_md(
     content: str, repo_root: Path, dry_run: bool = False
 ) -> tuple[str, dict]:
+    content = content.replace("\r\n", "\n")
     stats_before = calculate_metrics(content)
     sharded_files = []
 
@@ -598,7 +605,7 @@ def prune_continuity_md(
         # Find all lines belonging to the archive
         archive_lines = []
         canonical_boundary = re.compile(
-            r"^\s*-\s+(Goal|Constraints|Key decisions|State|Done|Now|Next|Open questions|Working set):",
+            rf"^(?:{re.escape(archive_indent)}-\s+(?:Goal|Constraints|Key decisions|State|Open questions|Working set):|{re.escape(archive_indent)}\s{{1,2}}-\s+(?:Done|Now|Next):)",
             re.IGNORECASE,
         )
 
@@ -610,7 +617,8 @@ def prune_continuity_md(
             if canonical_boundary.match(line) or line.startswith("## ") or line.startswith("---"):
                 break
             if stripped:
-                archive_lines.append(line)
+                if "Past session milestones archived to" not in line:
+                    archive_lines.append(line)
             idx += 1
         archive_end = idx
 
@@ -652,6 +660,8 @@ def prune_continuity_md(
             pruned_content = content
     else:
         pruned_content = content
+
+    pruned_content = pruned_content.replace("\r\n", "\n")
 
     stats_after = calculate_metrics(pruned_content)
     deltas = calculate_deltas(stats_before, stats_after)

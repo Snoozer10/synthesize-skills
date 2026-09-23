@@ -564,8 +564,11 @@ def main():
 
     has_errors = len(diagnostics["errors"]) > 0
     has_warnings = len(diagnostics["warnings"]) > 0
+    strict_warnings = [
+        w for w in diagnostics["warnings"] if not w.startswith("WARN_BUDGET_APPROACHING")
+    ]
 
-    exit_code = 1 if has_errors or (args.strict and has_warnings) else 0
+    exit_code = 1 if has_errors or (args.strict and len(strict_warnings) > 0) else 0
 
     if args.json:
         print(json.dumps(diagnostics, indent=2))
