@@ -1,6 +1,6 @@
 ---
 project_name: "synthesize-skills"
-version: "1.1.0"
+version: "1.1.1"
 tech_stack:
   - "python"
   - "powershell"
@@ -21,7 +21,7 @@ exclude_paths:
   - "*.bak"
   - "Research and docs"
   - "The Created Skills"
-last_indexed: "2026-09-22"
+last_indexed: "2026-09-23"
 generator: "gemini-context-engineer/v4.0.0"
 ---
 

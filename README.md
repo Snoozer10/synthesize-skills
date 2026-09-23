@@ -310,7 +310,7 @@ synthesize-skills/
 2. `GEMINI.md` (`version:` + `last_indexed:`)
 3. `package.json` (`version`)
 4. `README.md` (`<!-- release-sync:start -->
-Version: 1.1.0
+Version: 1.1.1
 <!-- release-sync:end -->`)
 5. `CHANGELOG.md` (ensures `## [Unreleased]` exists)
 
@@ -402,5 +402,5 @@ Version: 1.1.0
 - License: `LICENSE`
 
 <!-- release-sync:start -->
-Version: 1.1.0
+Version: 1.1.1
 <!-- release-sync:end -->

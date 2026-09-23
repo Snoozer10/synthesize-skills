@@ -8,8 +8,7 @@
 |---|---|
 | **Date** | 2026-09-23 |
 | **Branch** | `main` |
-| **HEAD Commit** | [`7099fdc`](https://github.com/Snoozer10/synthesize-skills/commit/7099fdc) |
-| **Version** | `1.1.0` (with unreleased hardening fixes) |
+| **Version** | `1.1.1` (ready for release tag) |
 | **Status** | Clean, all gates passing |
 
 ---

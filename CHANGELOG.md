@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+---
+
+## [1.1.1] - 2026-09-23
+
+> [!NOTE]
+> **Patch Maintenance Release**: Comprehensive skills diagnostic and hardening pass. Hardened parity and spec gates against bypass loopholes, achieved 0-warning static analysis across all canonical skills, resolved Windows cp1256 console crashes, decontaminated domain keywords, and wired real execution benchmarks.
+
 ### Fixed
 - **Strict Parity Gate Bypass (`repo-blast-radius-sync`)**: Hardened `verify_parity.py` to exit 1 when `max_src > mtime` under `--strict` mode.
 - **Git Rename Path Parsing (`repo-blast-radius-sync`)**: Fixed `-z` diff parser to preserve new destination path instead of overwriting with old deleted origin.
