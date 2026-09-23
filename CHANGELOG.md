@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+---
+
+## [1.1.0] - 2026-09-22
+
+> [!NOTE]
+> **Major Feature Release**: Universal Multi-Host Installer Engine, epo-standards-engineer skill, Multi-Host Adapter Compiler, and full test suite. Dual-registry publish live on npmjs.org + GitHub Packages with SLSA provenance.
+
+---
+
 ### Added
 - **Universal Multi-Host Installer Engine** (`install.ps1`, `install.sh`)
   - Cross-platform support across 8 AI host ecosystems: Open Agents Standard, Antigravity/Gemini, Claude Code, OpenAI Codex, OpenCode, Cursor, Windsurf, Copilot.
@@ -164,6 +173,16 @@ First stable release establishing the synthesize-skills workspace: a standardize
 ---
 
 ## [Unreleased]
+
+---
+
+## [1.1.0] - 2026-09-22
+
+> [!NOTE]
+> **Major Feature Release**: Universal Multi-Host Installer Engine, epo-standards-engineer skill, Multi-Host Adapter Compiler, and full test suite. Dual-registry publish live on npmjs.org + GitHub Packages with SLSA provenance.
+
+---
+
 
 > Next release will include: npm automation token configuration for CI, next skill development cycle (RED-GREEN-REFACTOR), and any community contributions.
 
