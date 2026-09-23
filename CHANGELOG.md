@@ -7,17 +7,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [Unreleased]
 
 ### Added
+- **Context Decomposition & Sharding Engine (`scripts/prune_context.py`)**: Added Protocol 10 (PRUNE / SHARD) to `gemini-context-engineer` to eliminate context bloat in `GEMINI.md` and `CONTINUITY.md` for large or long projects. Automatically shards rogue feature specs to `docs/specs/<slug>.md` with standardized `> [!NOTE]` pointer alerts left behind, preserves all permanent invariants (`MUST`, `NEVER`, `ALWAYS`, compiler/driver flags) in Section 3 under `### Technical & Environmental Invariants`, archives completed workstreams (`Done`) to `docs/workstreams/archive.md`, compacts Known Failure Modes to top 7 (archiving excess to `docs/error-solving/understood-errors.md`), and relocates historical session milestones to `docs/sessions/history/archive.md`. Implements atomic disk writes (`NamedTemporaryFile` + `os.replace` + `fsync`), rotating `.bak` files (max 3), and before/after metrics tables with percentage reductions.
+- **Non-Destructive Cross-Agent Federation Engine (`scripts/repo_indexer.py`, `validate_gemini_md.py`)**: Establishes `GEMINI.md` as the authoritative SSOT for Google Antigravity (2.0 / CLI / IDE) by non-destructively injecting bounded directive banners (`<!-- AGENT-SYNC: GEMINI.md:start -->` ... `:end -->`) into `CLAUDE.md` (Claude CLI & Desktop), `AGENTS.md` (OpenCode, Codex, Aider), and `.cursorrules` (Cursor). Preserves 100% of existing user tools, subagents, and configurations without wiping or replacing existing files with shims.
+- **Context Pruning Pressure Test Suite (`tests/test_context_pruning_pressure.py`)**: 5 real-world pressure tests validating context reduction (-32.2% lines / -65.1% tokens on bloated `GEMINI.md`, -90.1% lines / -94.0% tokens on bloated `CONTINUITY.md`), code fence awareness, line ending normalization, and zero split-brain warnings under `--strict --reality`.
 - **Canonical Skill #5 (`skill-creator`)**: Standardized scaffolding CLI (`scripts/init_skill.py`) generating spec-compliant skills with kebab-case regex validation, `Use when` triggers, and pressure test suite (`tests/test_skill_creator_pressure.py`).
 - **Selective Skill Installation (`-Skill` / `--skill`)**: Upgraded PowerShell installer (`install.ps1 -Skill <name>`) and POSIX installer (`install.sh --skill <name>`) to support single-skill or subset installation with transaction receipt tracking.
 - **Skill Isolation & Portability Test Suite (`tests/test_skill_isolation_and_portability.py`)**: 4 comprehensive tests validating single skill install, subset install, non-destructive Git hook chaining, and standalone execution in bare repositories.
 - **GitHub Release CI Automation**: Automated release note creation and asset generation on tag push in `.github/workflows/release.yml`, upgraded runner to Node 22 LTS.
 
 ### Fixed
+- **Code Fence Ambiguity in Section Parsing**: Added code fence tracking (`in_code_block`) across ```` and `~~~` in both `prune_context.py` and `validate_gemini_md.py` to prevent code comments starting with `## ` from being misidentified as rogue H2 sections.
 - **Destructive Git Hook Overwriting**: Replaced unconditional overwrite in `context_daemon.py` and `release_sync.py` with idempotent, non-destructive inspection and appending in `.git/hooks/pre-commit`.
 - **Greedy Multiline Regex in `check.py`**: Added non-newline character class `[^"\'\r\n]+` to prevent unquoted frontmatter version values from consuming YAML fences.
 - **Staging Directory & Backup Cleanliness**: Added `The Created Skills/` and `*.bak-*` to `.gitignore`.
 
 ### Changed
+- **Skill Specification & Reference Sync**: Updated `gemini-context-engineer` `SKILL.md` with Protocol 10 (PRUNE / SHARD) and `scripts/prune_context.py` documentation; updated `references/cross_ecosystem_federation.md` with multi-ecosystem role mapping; updated `references/token_budget_heuristics.md` with Section 5 Sharding Taxonomy.
 - **LLM Cognitive Trigger Disambiguation**: Delineated frontmatter descriptions and keywords across all canonical skills to distinguish architectural reality drift (`gemini-context-engineer`), semver parity drift (`release-sync`), staged blast radius (`repo-blast-radius-sync`), and deterministic contract verification (`repo-standards-engineer`).
 - **Adapter Recompilation**: Regenerated native adapters across 8 host ecosystems (Claude, Cursor, Gemini, OpenCode, Codex, Windsurf, Copilot, and Agents) reflecting 5 canonical skills.
 
