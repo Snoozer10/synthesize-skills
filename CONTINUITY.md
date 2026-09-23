@@ -7,10 +7,10 @@
 
 ## 📋 Current Session Context
 
-**Date:** 2026-09-23
+**Date:** 2026-09-24
 **Branch:** main
-**Version:** 1.1.1 (tags: v1.0.0, v1.0.1, v1.1.0, v1.1.1 live on npm & GitHub)
-**Active Workstream:** Standby (Awaiting user assignment)
+**Version:** 1.2.0 (tags: v1.0.0, v1.0.1, v1.1.0, v1.1.1, v1.2.0 live on npm & GitHub)
+**Active Workstream:** Standby (Selecting next skill to update)
 
 ---
 
@@ -38,6 +38,7 @@
 | WS-016 | Canonical Skill #5 (skill-creator) & Staging Cleanliness | 2026-09-23 | 5 skills across 8 hosts; validate.py 0 errors/0 warnings; 7/7 pressure tests PASS; git status pristine |
 | WS-017 | Skills Collision, Cross-Impact Audit & Isolation Architecture | 2026-09-23 | Selective install (-Skill/--skill) in PowerShell & POSIX; non-destructive hook chaining; disambiguated cognitive triggers; tests/test_skill_isolation_and_portability.py 4/4 PASS; all 9 test suites PASS |
 | WS-019 | Context Decomposition, Sharding & Non-Destructive Federation | 2026-09-24 | 59/59 unit tests PASS, 5/5 pressure tests PASS, 7/7 evals PASS, validate.py 0 errors/0 warnings |
+| WS-020 | Release v1.2.0 Dual Registry Publish & GitHub Release | 2026-09-24 | npmjs.org @1.2.0, GitHub Packages @1.2.0, GitHub Release v1.2.0 live with SLSA provenance |
 
 ---
 
@@ -45,7 +46,7 @@
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| WS-019-FINISH | Finishing Development Branch & Integration Review | 🔄 **PRESENTING OPTIONS** | User decision on branch integration |
+| WS-021 | Update Next Skill | 🔄 **AWAITING TARGET SELECTION** | User selects which skill to update |
 
 ---
 
