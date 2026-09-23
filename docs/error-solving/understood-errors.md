@@ -1,4 +1,4 @@
-# Understood Errors — synthesize-skills
+# Understood Errors أ¢â‚¬â€‌ synthesize-skills
 
 Catalog of known error patterns, causes, and resolutions encountered during development.
 
@@ -17,6 +17,30 @@ npm ERR! need auth This command requires you to be logged in
 - For npmjs.org: Configure `NPM_TOKEN` secret in GitHub Actions (automation token, not personal)
 - For GitHub Packages: Use `secrets.GITHUB_TOKEN` with `id-token: write` permission
 - Verify token scope: `write:packages` for GitHub, `publish` for npm
+
+### npm EOTP â€” Token name is not token type
+**Error:**
+```
+npm error code EOTP
+npm error This operation requires a one-time password from your authenticator.
+```
+**Cause:** Three distinct root causes, all produce the same EOTP error:
+1. **Wrong token type**: A "Publish" or "Read-only" Classic token was stored as `NPM_TOKEN`. Only "Automation" type bypasses 2FA in CI.
+2. **Token name â‰  token type**: npm token *names* are arbitrary labels. A token named "Automation" may still be a Publish-type token â€” the type is set at creation, not from the name.
+3. **CLI creation blocked**: `npm token create --type=automation` fails with E403 for accounts using granular access tokens or with certain 2FA configurations. CLI cannot create automation tokens.
+
+**Resolution:**
+- Create a **Classic Automation** token via web UI only:
+  1. Go to https://www.npmjs.com/settings/<user>/tokens/new
+  2. Select **"Classic Token"**
+  3. Select scope **"Automation"** (explicitly says "bypasses two-factor authentication")
+  4. Store it as `NPM_TOKEN` secret: `echo <token> | gh secret set NPM_TOKEN -R <owner>/<repo>`
+- Verify correct token: on the Access Tokens list page, the "Bypass 2FA" column must show âœ“ for your token row.
+
+**Prevention:**
+- Store token in `~/.npmrc` locally (`//registry.npmjs.org/:_authToken=npm_...`) â€” retrievable as fallback if the CI secret is wrong.
+- After rotating, verify the new token's "Bypass 2FA" checkmark before closing the tokens page.
+- Note expiry date â€” automation tokens with expiry will cause silent EOTP failures after the date.
 
 ### npm publish: "You must verify your email"
 **Error:**
@@ -89,7 +113,7 @@ npm ERR! 404 Not Found - GET https://npm.pkg.github.com/@snoozer10%2fsynthesize-
 **Cause:** Package not published to GitHub Packages, or Actions access not granted.
 **Resolution:**
 1. Publish once manually: `npm publish --registry=https://npm.pkg.github.com`
-2. Grant Actions access: Package settings → Actions access → Add repository → Write role
+2. Grant Actions access: Package settings أ¢â€ â€™ Actions access أ¢â€ â€™ Add repository أ¢â€ â€™ Write role
 
 ---
 
@@ -114,7 +138,7 @@ ERROR: .agents/skills/my-skill/SKILL.md: dir name 'my-skill' != frontmatter name
 ### release_sync.py --check: "VERSION is gitignored"
 **Error:**
 ```
-drift: VERSION is gitignored (git check-ignore -q) — remove from .gitignore
+drift: VERSION is gitignored (git check-ignore -q) أ¢â‚¬â€‌ remove from .gitignore
 ```
 **Cause:** `VERSION` file listed in `.gitignore`.
 **Resolution:** Remove `VERSION` from `.gitignore` (must be tracked for release automation).
@@ -245,6 +269,7 @@ Python was not found; run without arguments to install from the Microsoft Store,
 
 | Error Pattern | Frequency | Last Seen | Status |
 |---------------|-----------|-----------|--------|
+| npm EOTP (token type mismatch) | High | 2026-09-23 | Documented |
 | npm ENEEDAUTH | High | 2026-09-14 | Documented |
 | Tag force-push | Medium | 2026-09-14 | Documented |
 | OIDC id-token | Medium | 2026-09-14 | Documented |

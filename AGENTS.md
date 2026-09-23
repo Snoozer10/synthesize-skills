@@ -1,24 +1,24 @@
-# AGENTS.md — synthesize-skills
+# AGENTS.md â€” synthesize-skills
 
 > Compact instruction file for OpenCode sessions. Every line answers: "Would an agent likely miss this without help?"
 
 ---
 
-## 🎯 Repo Purpose
+## ًںژ¯ Repo Purpose
 Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed across 8 host targets (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`, `.codex/skills`, `.cursor/skills`, `.windsurf/skills`, `.copilot/skills`).
 
 ---
 
-## 🔑 Critical Commands (Exact, Non-Obvious)
+## ًں”‘ Critical Commands (Exact, Non-Obvious)
 
 ```bash
-# Validate ALL skills (CI gate — REQUIRED before commit)
+# Validate ALL skills (CI gate â€” REQUIRED before commit)
 python scripts/validate.py
 
 # Validate SINGLE skill
 python scripts/validate.py .agents/skills/<name>
 
-# Generate manifest.json (maps skill → 8 host install paths)
+# Generate manifest.json (maps skill â†’ 8 host install paths)
 python scripts/manifest.py
 
 # Compile native adapters (Claude commands, Cursor rules, Gemini rules, OpenCode, Codex, Windsurf)
@@ -52,7 +52,7 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 🏗️ Architecture (Non-Obvious Boundaries)
+## ًںڈ—ï¸ڈ Architecture (Non-Obvious Boundaries)
 
 | Path | Role | Notes |
 |------|------|-------|
@@ -64,14 +64,14 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 📋 Validation Rules (Exit Codes Matter)
+## ًں“‹ Validation Rules (Exit Codes Matter)
 
 | Check | Severity | Exit Code |
 |-------|----------|-----------|
 | `name` regex `^[a-z0-9]+(-[a-z0-9]+)*$` | ERROR | 1 |
 | `dir == frontmatter name` (allowlist: `skill-template`/`skill-name`) | ERROR | 1 |
 | `description` 1-500 chars | ERROR | 1 |
-| Frontmatter raw ≤1024 chars | ERROR | 1 |
+| Frontmatter raw â‰¤1024 chars | ERROR | 1 |
 | Body <500 lines | ERROR | 1 |
 | Runnable code fence required (```python\|bash\|sh\|ps1\|js\|ts) | ERROR | 1 |
 | `description` starts with "Use when" | WARN | 0 |
@@ -84,17 +84,17 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 🔄 Release Workflow (Dual Registry + OIDC)
+## ًں”„ Release Workflow (Dual Registry + OIDC)
 
-**Trigger:** Push tag `v*` (e.g., `git tag v1.0.1 && git push origin v1.0.1`)
+**Trigger:** Push tag `v*` (e.g., `git tag v1.1.0 && git push origin v1.1.0`)
 
 **Pipeline (`.github/workflows/release.yml`):**
-1. `validate` job → `python scripts/validate.py`
-2. `publish-npm` job → `npm publish --provenance --access public` (uses `NPM_TOKEN` secret)
-3. `publish-github` job → `npm publish --provenance` (uses `GITHUB_TOKEN` with `packages: write`)
+1. `validate` job â†’ `python scripts/validate.py`
+2. `publish-npm` job â†’ `npm publish --provenance --access public` (uses `NPM_TOKEN` secret)
+3. `publish-github` job â†’ `npm publish --provenance` (uses `GITHUB_TOKEN` with `packages: write`)
 
 **Secrets Required:**
-- `NPM_TOKEN` = **npm automation token** (NOT personal token — 2FA causes EOTP failure)
+- `NPM_TOKEN` = **npm automation token** (NOT personal token â€” 2FA causes EOTP failure)
   - Create: `npm token create --type=automation --read-only=false --cidr=0.0.0.0/0`
 - `GITHUB_TOKEN` = auto-provided, needs `packages: write` permission (set in workflow)
 
@@ -102,7 +102,7 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 📦 Version Sync (Atomic, 5 Files)
+## ًں“¦ Version Sync (Atomic, 5 Files)
 
 `release_sync.py --bump patch --apply` updates atomically with rollback:
 1. `VERSION`
@@ -115,27 +115,27 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 🛑 Hard Constraints (Violations = Revert)
+## ًں›‘ Hard Constraints (Violations = Revert)
 
-1. **Stdlib-only scripts** — `scripts/` uses Python stdlib only. No `pip`/`npm` deps.
-2. **One skill at a time** — RED-GREEN-REFACTOR stop-gate (`docs/WORKFLOW.md`). Untested edit = revert.
-3. **No batch-create** — Pressure test first (RED), minimal skill second (GREEN), close loopholes third (REFACTOR).
-4. **Read-only zones** — Never touch `Research and docs/` or `The Created Skills/` without explicit ask.
-5. **Dir name = frontmatter `name`** — Only `skill-template`/`skill-name` allowlisted mismatch.
-6. **Validate before commit** — `python scripts/validate.py` must exit 0.
+1. **Stdlib-only scripts** â€” `scripts/` uses Python stdlib only. No `pip`/`npm` deps.
+2. **One skill at a time** â€” RED-GREEN-REFACTOR stop-gate (`docs/WORKFLOW.md`). Untested edit = revert.
+3. **No batch-create** â€” Pressure test first (RED), minimal skill second (GREEN), close loopholes third (REFACTOR).
+4. **Read-only zones** â€” Never touch `Research and docs/` or `The Created Skills/` without explicit ask.
+5. **Dir name = frontmatter `name`** â€” Only `skill-template`/`skill-name` allowlisted mismatch.
+6. **Validate before commit** â€” `python scripts/validate.py` must exit 0.
 
 ---
 
-## 🧪 Testing Quirks
+## ًں§ھ Testing Quirks
 
-- **No pytest/Jest** — Validation IS the test suite. `scripts/validate.py` is the gate.
+- **No pytest/Jest** â€” Validation IS the test suite. `scripts/validate.py` is the gate.
 - **Pressure tests** live in `tests/` (e.g., `test_release_sync_pressure.py` for drift/bump scenarios).
 - **Exercises** in `exercises/` are learning modules, not CI tests.
 - **Pre-commit hook** available: `python scripts/release_sync.py --install-hooks`
 
 ---
 
-## 🔧 OpenCode Config (`.opencode.json`)
+## ًں”§ OpenCode Config (`.opencode.json`)
 
 ```json
 {
@@ -155,7 +155,7 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## 📁 Key Files to Know
+## ًں“پ Key Files to Know
 
 | File | Purpose |
 |------|---------|
@@ -171,7 +171,7 @@ python tests/test_release_sync_pressure.py -v
 
 ---
 
-## ⚠️ Common Pitfalls (Agents Miss These)
+## âڑ ï¸ڈ Common Pitfalls (Agents Miss These)
 
 | Pitfall | Fix |
 |---------|-----|
@@ -180,12 +180,12 @@ python tests/test_release_sync_pressure.py -v
 | Using personal npm token (2FA) in CI | Use **automation token**: `npm token create --type=automation` |
 | Missing `packages: write` for GitHub Packages | Workflow has `permissions: packages: write` at job level. |
 | Manually editing VERSION/package.json/GEMINI.md | Use `release_sync.py --bump patch --apply` |
-| Batch-creating skills | One at a time. RED → GREEN → REFACTOR. |
+| Batch-creating skills | One at a time. RED â†’ GREEN â†’ REFACTOR. |
 | Assuming `validate.py` catches everything | Run it against the specific skill: `python scripts/validate.py .agents/skills/<name>` |
 
 ---
 
-## 🔗 References
+## ًں”— References
 
 - Workflow: `docs/WORKFLOW.md`
 - Contributing: `docs/CONTRIBUTING.md`
