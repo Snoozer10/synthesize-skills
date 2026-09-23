@@ -1,26 +1,32 @@
 # synthesize-skills
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.1.1-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/Snoozer10/synthesize-skills/validate.yml?branch=main)](https://github.com/Snoozer10/synthesize-skills/actions/workflows/validate.yml)
 [![Python](https://img.shields.io/badge/python-3.11+-yellow)](https://www.python.org/)
 [![npm](https://img.shields.io/npm/v/@snoozer10/synthesize-skills)](https://www.npmjs.com/package/@snoozer10/synthesize-skills)
 [![GitHub Packages](https://img.shields.io/github/v/release/Snoozer10/synthesize-skills?label=github%20packages&color=blue)](https://github.com/Snoozer10/synthesize-skills/packages)
 
-> Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed to 4 host dirs (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
+> Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed across 8 host directories (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`, `.codex/skills`, `.cursor/skills`, `.windsurf/skills`, `.copilot/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
 
 ---
 
-## 📦 Skills Catalog (4 Canonical Skills)
+## 📦 Skills Catalog (5 Canonical Skills)
 
-| Skill | Description | Trigger | Install |
-|---|---|---|---|
-| `gemini-context-engineer` | Use when creating or maintaining GEMINI.md, mapping repository architecture, compiling task context slices, guarding git boundaries, or verifying execution contracts | GEMINI.md tasks, repo mapping, context compilation | `repo-sync add gemini-context-engineer` |
-| `repo-blast-radius-sync` | Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync — detects blast radius and blocks orphaned commits | Refactor/feature/bugfix, parity verification | `repo-sync add repo-blast-radius-sync` |
-| `release-sync` | Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major\|minor\|patch — parity gate and atomic bump for release_sync | Release prep, version drift detection | `repo-sync add release-sync` |
-| `repo-standards-engineer` | Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications | Standards extraction, spec interview, contract verification | `repo-sync add repo-standards-engineer` |
+| Skill | Description | Trigger |
+|---|---|---|
+| `gemini-context-engineer` | Creating, updating, auditing, or federating GEMINI.md workspace context files, detecting architectural reality drift, compiling task slices, or verifying workstream proof commands | Architectural drift, GEMINI.md sync, context compilation |
+| `release-sync` | Detecting release semver version drift across VERSION, GEMINI.md, and package.json, maintaining CHANGELOG and README hygiene, or atomically bumping release versions | Semver version drift, release prep, atomic bumping |
+| `repo-blast-radius-sync` | Checking code changes for orphaned callers, outdated tests, or stale documentation, discovering change blast radius, or verifying git staged parity against dependency registry | Refactoring, code modifications, staged parity |
+| `repo-standards-engineer` | Extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants, shaping feature specs, or verifying deterministic executable contracts | Standards discovery, feature spec shaping, contract verification |
+| `skill-creator` | Authoring, scaffolding, validating, or packaging new reusable AI-agent skills across multiple agent ecosystems | New skill creation, skill scaffolding, validation |
 
 ### Skill Details
+
+#### `skill-creator`
+- **Capabilities**: Standardized scaffolding CLI utility (`scripts/init_skill.py`) generating spec-compliant skills, strict kebab-case naming validation, frontmatter generation with "Use when" triggers, zero-warning out-of-the-box baseline.
+- **Structure**: 1 script (`init_skill.py`), test suite (`test_skill_creator_pressure.py`), template compatibility.
+- **Use when**: Authoring, scaffolding, or packaging new AI-agent skills for distribution across agent ecosystems.
 
 #### `repo-standards-engineer`
 - **Capabilities**: AST Standards Scanner (extracts envelopes, enums, DB patterns with SHA-256 caching), JIT Token Bounding (MIP ≤600 tokens), Spec Shaper (`specs/<slug>/SPEC.md`), Executable Assertion Contracts (`verify_spec.py`).
@@ -28,19 +34,19 @@
 - **Use when**: Unfamiliar codebase onboarding, shaping feature specs, enforcing deterministic verification before completion.
 
 #### `gemini-context-engineer`
-- **Capabilities**: JIT Context Compiler (MIP token bounding ≤600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit sync), Executable Workstream Proofs (anti-premature completion harness)
-- **Structure**: 8 scripts, 9 reference guides, 5 test files, evals, benchmarks, assets
-- **Use when**: Creating/maintaining GEMINI.md, mapping repo architecture, compiling task context, guarding git boundaries, verifying execution contracts
+- **Capabilities**: JIT Context Compiler (MIP token bounding ≤600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit sync), Executable Workstream Proofs (anti-premature completion harness).
+- **Structure**: 8 scripts, 9 reference guides, 5 test files, evals, benchmarks, assets.
+- **Use when**: Creating/maintaining GEMINI.md, mapping repo architecture, compiling task context, detecting architectural reality drift, verifying execution contracts.
 
 #### `repo-blast-radius-sync`
-- **Capabilities**: Blast radius detection (callers, tests, docs), registry verification, live dashboard (port 8765), orphaned commit blocking
-- **Structure**: 5 scripts (`blast_radius.py`, `build_registry.py`, `dashboard.py`, `draft_doc_updates.py`, `verify_parity.py`), 3 references
-- **Use when**: Refactoring, adding features, fixing bugs where dependent artifacts must stay in sync
+- **Capabilities**: Blast radius detection (callers, tests, docs), registry verification, live dashboard (port 8765), orphaned commit blocking.
+- **Structure**: 5 scripts (`blast_radius.py`, `build_registry.py`, `dashboard.py`, `draft_doc_updates.py`, `verify_parity.py`), 3 references.
+- **Use when**: Refactoring, adding features, fixing bugs where dependent artifacts must stay in sync.
 
 #### `release-sync`
-- **Capabilities**: Version parity gate (80/20: FAIL on drift, WARN on hygiene), atomic semver bump across 5 files with rollback, portable (copy-paste to any project)
-- **Structure**: 2 scripts (`check.py`, `bump.py`), 2 references (API, examples)
-- **Use when**: VERSION/GEMINI.md/package.json drift, CHANGELOG/README hygiene, before semver bump
+- **Capabilities**: Version parity gate (80/20: FAIL on drift, WARN on hygiene), atomic semver bump across 5 files with rollback, portable (copy-paste to any project).
+- **Structure**: 2 scripts (`check.py`, `bump.py`), 2 references (API, examples).
+- **Use when**: VERSION/GEMINI.md/package.json drift, CHANGELOG/README hygiene, before semver bump.
 
 ---
 
@@ -57,14 +63,15 @@ bash install.sh --force  # POSIX
 ```
 
 **What happens:**
-1. Validates all 3 skills (CI gate)
-2. Generates `manifest.json` mapping skills → host paths
-3. Copies skills to 4 host directories:
+1. Validates all 5 skills (CI gate)
+2. Generates `manifest.json` mapping skills → host paths across 8 ecosystems
+3. Copies skills to target host directories:
    - `.agents/skills/` (canonical)
    - `.claude/skills/`
    - `.opencode/skills/`
    - `.gemini/skills/`
-4. SHA256 comparison skips identical files; creates `.bak` backups
+   - `.codex/skills/`, `.cursor/skills/`, `.windsurf/skills/`, `.copilot/skills/`
+4. SHA256 comparison skips identical files; creates `.bak` backups with rollback support
 
 ### From npm (Published Package)
 
@@ -101,7 +108,9 @@ repo-sync add <skill>
 ### Installer CLI Switches
 ```powershell
 # PowerShell (Windows)
-.\install.ps1 -Force                                      # Apply auto-detected install
+.\install.ps1 -Force                                      # Apply auto-detected install across active hosts
+.\install.ps1 -Skill skill-creator -Force                 # Install single skill standalone
+.\install.ps1 -Skill "release-sync,repo-blast-radius-sync" -Force # Install specific subset of skills
 .\install.ps1 -Scope Global -Force                        # Install globally into user profiles (~/.gemini, ~/.claude, etc.)
 .\install.ps1 -Target "claude,antigravity" -Force         # Selective multi-host targeting
 .\install.ps1 -Rollback                                   # Safely rollback via transaction receipt
@@ -110,6 +119,8 @@ repo-sync add <skill>
 ```bash
 # POSIX Shell (Linux / macOS / WSL)
 ./install.sh --force                                      # Apply auto-detected install
+./install.sh --skill skill-creator --force                # Install single skill standalone
+./install.sh --skill "release-sync,repo-blast-radius-sync" --force # Install specific subset of skills
 ./install.sh --scope global --force                       # Install globally
 ./install.sh --target "claude,antigravity" --force        # Selective multi-host targeting
 ./install.sh --rollback                                   # Safely rollback via transaction receipt
@@ -204,9 +215,10 @@ git push origin main --tags
 synthesize-skills/
 ├── .agents/skills/           # canonical skills (SSOT)
 │   ├── gemini-context-engineer/
-│   ├── repo-blast-radius-sync/
 │   ├── release-sync/
-│   └── repo-standards-engineer/
+│   ├── repo-blast-radius-sync/
+│   ├── repo-standards-engineer/
+│   └── skill-creator/
 ├── templates/
 │   └── skill-template/       # SKILL.md starter (not installed)
 ├── scripts/
@@ -219,6 +231,7 @@ synthesize-skills/
 │   ├── index_standards.py    # Symbol & standards indexer
 │   ├── shape_spec.py         # Spec Shaper & verification generator
 │   ├── verify_spec.py        # Executable contract verification engine
+│   ├── init_skill.py         # Standardized skill scaffolding utility
 │   └── release_sync.py       # Version parity gate + atomic bump
 ├── tests/
 │   ├── test_standards_engine.py
@@ -227,7 +240,9 @@ synthesize-skills/
 │   ├── test_edge_cases_and_fault_injection.py
 │   ├── test_blast_radius_parity.py
 │   ├── test_release_sync_pressure.py
-│   └── test_release_sync_smoke.py
+│   ├── test_release_sync_smoke.py
+│   ├── test_skill_creator_pressure.py
+│   └── test_skill_isolation_and_portability.py
 ├── exercises/                # RED-GREEN-REFACTOR learning modules
 │   ├── 01-skill-authoring/       # 3 scenarios
 │   ├── 02-pressure-testing/      # 2 scenarios

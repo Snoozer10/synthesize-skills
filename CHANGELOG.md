@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- **Canonical Skill #5 (`skill-creator`)**: Standardized scaffolding CLI (`scripts/init_skill.py`) generating spec-compliant skills with kebab-case regex validation, `Use when` triggers, and pressure test suite (`tests/test_skill_creator_pressure.py`).
+- **Selective Skill Installation (`-Skill` / `--skill`)**: Upgraded PowerShell installer (`install.ps1 -Skill <name>`) and POSIX installer (`install.sh --skill <name>`) to support single-skill or subset installation with transaction receipt tracking.
+- **Skill Isolation & Portability Test Suite (`tests/test_skill_isolation_and_portability.py`)**: 4 comprehensive tests validating single skill install, subset install, non-destructive Git hook chaining, and standalone execution in bare repositories.
+- **GitHub Release CI Automation**: Automated release note creation and asset generation on tag push in `.github/workflows/release.yml`, upgraded runner to Node 22 LTS.
+
+### Fixed
+- **Destructive Git Hook Overwriting**: Replaced unconditional overwrite in `context_daemon.py` and `release_sync.py` with idempotent, non-destructive inspection and appending in `.git/hooks/pre-commit`.
+- **Greedy Multiline Regex in `check.py`**: Added non-newline character class `[^"\'\r\n]+` to prevent unquoted frontmatter version values from consuming YAML fences.
+- **Staging Directory & Backup Cleanliness**: Added `The Created Skills/` and `*.bak-*` to `.gitignore`.
+
+### Changed
+- **LLM Cognitive Trigger Disambiguation**: Delineated frontmatter descriptions and keywords across all canonical skills to distinguish architectural reality drift (`gemini-context-engineer`), semver parity drift (`release-sync`), staged blast radius (`repo-blast-radius-sync`), and deterministic contract verification (`repo-standards-engineer`).
+- **Adapter Recompilation**: Regenerated native adapters across 8 host ecosystems (Claude, Cursor, Gemini, OpenCode, Codex, Windsurf, Copilot, and Agents) reflecting 5 canonical skills.
+
 ---
 
 ## [1.1.1] - 2026-09-23

@@ -32,6 +32,12 @@ bash install.sh                # POSIX
 install.ps1 -Force             # Windows
 bash install.sh --force        # POSIX
 
+# Selective install (single skill or subset)
+install.ps1 -Skill skill-creator -Force
+bash install.sh --skill skill-creator --force
+install.ps1 -Skill "release-sync,repo-blast-radius-sync" -Force
+bash install.sh --skill "release-sync,repo-blast-radius-sync" --force
+
 # Global install to user home profiles
 install.ps1 -Scope Global -Force
 bash install.sh --scope global --force
@@ -46,7 +52,8 @@ python scripts/release_sync.py --check
 # Atomic semver bump (updates VERSION, GEMINI.md, package.json, README region, CHANGELOG)
 python scripts/release_sync.py --bump patch --apply
 
-# Run pressure tests (release-sync exercises)
+# Run pressure & isolation tests
+python tests/test_skill_isolation_and_portability.py
 python tests/test_release_sync_pressure.py -v
 ```
 
