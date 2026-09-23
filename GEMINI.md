@@ -127,3 +127,5 @@ bash install.sh --force        # POSIX
 
 ### Known Failure Modes & Project Learnings
 - [LEARNING-001]: NEVER assume `validate.py` covers frontmatter edge cases without running it; ALWAYS execute `python scripts/validate.py` against the target skill before claiming PASS.
+- [LEARNING-002]: NEVER assume empty contracts (`assertions: []` or missing `VERIFICATION.json`) pass verification legitimately; `verify_spec.py` enforces total assertions > 0 unless `--allow-empty` is explicit.
+- [LEARNING-003]: ALWAYS reconfigure `sys.stdout` and `sys.stderr` to UTF-8 on Windows CLI tools to prevent `cp1256`/`cp1252` encoding crashes on Unicode output.

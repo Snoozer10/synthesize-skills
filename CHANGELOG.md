@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Fixed
+- **Strict Parity Gate Bypass (`repo-blast-radius-sync`)**: Hardened `verify_parity.py` to exit 1 when `max_src > mtime` under `--strict` mode.
+- **Git Rename Path Parsing (`repo-blast-radius-sync`)**: Fixed `-z` diff parser to preserve new destination path instead of overwriting with old deleted origin.
+- **Anti-Premature Completion Loophole (`repo-standards-engineer`)**: Fixed `verify_spec.py` to exit 1 on missing contract or zero evaluated assertions (`assertions: []`), requiring `--allow-empty` for exceptions.
+- **Windows Console & Subprocess Crashes (`cp1256` / `cp1252`)**: Reconfigured `sys.stdout`/`sys.stderr` streams to UTF-8 on entry and specified `encoding="utf-8", errors="replace"` in all subprocess calls across `verify_spec.py`, `verify_parity.py`, `check.py`, and `bump.py`.
+- **Cross-Platform Tree Hashing (`repo-standards-engineer`)**: Used relative POSIX paths (`p.relative_to(root).as_posix()`) in `discover_standards.py` to ensure identical SHA-256 cache values across Windows and POSIX.
+- **Git Worktree Hook Installation (`release-sync`)**: Resolved hook directory dynamically via `git rev-parse --git-dir` + `/hooks` and isolated atomic writes to `target.parent`.
+- **Text & Encoding Hygiene**: Removed all double-encoded UTF-8 mojibake (`â€”`, `â†’`) in `SKILL.md` files.
+
+### Changed
+- **Validator Compliance (Zero Warnings)**: Refactored `SKILL.md` frontmatter across all skills (`gemini-context-engineer`, `release-sync`, `repo-blast-radius-sync`, `repo-standards-engineer`, `templates/skill-template`) with clean `Use when...` triggers, explicit `## Keywords` sections, and purged workflow summary warnings.
+- **Domain Decontamination (`gemini-context-engineer`)**: Replaced hardcoded audio/video terms in `context_compiler.py` with generic semantic keyword overlap.
+- **Evaluation Rigor (`gemini-context-engineer`)**: Replaced stub benchmark functions in `run_evals.py` with real script invocations.
+
 ---
 
 ## [1.1.0] - 2026-09-22
