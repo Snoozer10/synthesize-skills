@@ -11,7 +11,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.1.0] - 2026-09-22
 
 > [!NOTE]
-> **Major Feature Release**: Universal Multi-Host Installer Engine, epo-standards-engineer skill, Multi-Host Adapter Compiler, and full test suite. Dual-registry publish live on npmjs.org + GitHub Packages with SLSA provenance.
+> **Major Feature Release**: Universal Multi-Host Installer Engine, 
+repo-standards-engineer skill, Multi-Host Adapter Compiler, and full test suite. Dual-registry publish live on npmjs.org + GitHub Packages with SLSA provenance.
 
 ---
 
@@ -24,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - SHA-256 idempotency: zero file churn on identical content.
   - Automatic transaction receipt recording (`.runtime/installed_receipt.json`) and instant clean rollback (`-Rollback` / `--rollback`).
   - Automatic bytecode filtering: excludes `__pycache__` and `*.pyc` files from distribution.
-- **Canonical Skill: `repo-standards-engineer`** (`.agents/skills/repo-standards-engineer/`)
+- **Canonical Skill: `rrepo-standards-engineer`** (`.agents/skills/rrepo-standards-engineer/`)
   - AST-based standards discovery (`scripts/discover_standards.py`) extracting API response envelopes, error enums (including `AnnAssign`), and DB query patterns with content-addressed SHA-256 caching.
   - JIT MIP token bounding (`scripts/inject_standards.py`) enforcing $\le 600$ token ceiling.
   - Symbol and standards indexer (`scripts/index_standards.py`).
@@ -169,22 +170,6 @@ First stable release establishing the synthesize-skills workspace: a standardize
 - Install scripts copy to 4 host dirs with SHA256 dedup
 - Manifest.json maps all 3 skills correctly
 - CI passes on Windows + Ubuntu
-
----
-
-## [Unreleased]
-
----
-
-## [1.1.0] - 2026-09-22
-
-> [!NOTE]
-> **Major Feature Release**: Universal Multi-Host Installer Engine, epo-standards-engineer skill, Multi-Host Adapter Compiler, and full test suite. Dual-registry publish live on npmjs.org + GitHub Packages with SLSA provenance.
-
----
-
-
-> Next release will include: npm automation token configuration for CI, next skill development cycle (RED-GREEN-REFACTOR), and any community contributions.
 
 ---
 

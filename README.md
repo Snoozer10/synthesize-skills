@@ -1,34 +1,34 @@
 # synthesize-skills
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/Snoozer10/synthesize-skills/validate.yml?branch=main)](https://github.com/Snoozer10/synthesize-skills/actions/workflows/validate.yml)
 [![Python](https://img.shields.io/badge/python-3.11+-yellow)](https://www.python.org/)
 [![npm](https://img.shields.io/npm/v/@snoozer10/synthesize-skills)](https://www.npmjs.com/package/@snoozer10/synthesize-skills)
 [![GitHub Packages](https://img.shields.io/github/v/release/Snoozer10/synthesize-skills?label=github%20packages&color=blue)](https://github.com/Snoozer10/synthesize-skills/packages)
 
-> Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed to 8 host dirs (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`, `.codex/skills`, `.cursor/skills`, `.windsurf/skills`, `.copilot/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
+> Workspace for authoring, validating, and installing reusable AI-agent skills. Skills are `SKILL.md` files with YAML frontmatter, validated by `scripts/validate.py`, installed to 4 host dirs (`.agents/skills`, `.claude/skills`, `.opencode/skills`, `.gemini/skills`). RED-GREEN-REFACTOR workflow enforces one skill at a time with pressure-scenario testing before acceptance.
 
 ---
 
-## ðŸ“¦ Skills Catalog (4 Canonical Skills)
+## 📦 Skills Catalog (4 Canonical Skills)
 
 | Skill | Description | Trigger | Install |
 |---|---|---|---|
 | `gemini-context-engineer` | Use when creating or maintaining GEMINI.md, mapping repository architecture, compiling task context slices, guarding git boundaries, or verifying execution contracts | GEMINI.md tasks, repo mapping, context compilation | `repo-sync add gemini-context-engineer` |
-| `repo-blast-radius-sync` | Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync â€” detects blast radius and blocks orphaned commits | Refactor/feature/bugfix, parity verification | `repo-sync add repo-blast-radius-sync` |
-| `release-sync` | Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major\|minor\|patch â€” parity gate and atomic bump for release_sync | Release prep, version drift detection | `repo-sync add release-sync` |
+| `repo-blast-radius-sync` | Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync — detects blast radius and blocks orphaned commits | Refactor/feature/bugfix, parity verification | `repo-sync add repo-blast-radius-sync` |
+| `release-sync` | Use when VERSION, GEMINI.md, or package.json versions may drift, when CHANGELOG/README hygiene is needed, or before bumping major\|minor\|patch — parity gate and atomic bump for release_sync | Release prep, version drift detection | `repo-sync add release-sync` |
 | `repo-standards-engineer` | Use when extracting codebase standards, response envelopes, and error codes via AST, injecting token-bounded invariants into agent context, shaping interactive specs, or executing deterministic contract verifications | Standards extraction, spec interview, contract verification | `repo-sync add repo-standards-engineer` |
 
 ### Skill Details
 
 #### `repo-standards-engineer`
-- **Capabilities**: AST Standards Scanner (extracts envelopes, enums, DB patterns with SHA-256 caching), JIT Token Bounding (MIP â‰¤600 tokens), Spec Shaper (`specs/<slug>/SPEC.md`), Executable Assertion Contracts (`verify_spec.py`).
+- **Capabilities**: AST Standards Scanner (extracts envelopes, enums, DB patterns with SHA-256 caching), JIT Token Bounding (MIP ≤600 tokens), Spec Shaper (`specs/<slug>/SPEC.md`), Executable Assertion Contracts (`verify_spec.py`).
 - **Structure**: 5 scripts (`discover_standards.py`, `inject_standards.py`, `index_standards.py`, `shape_spec.py`, `verify_spec.py`), 3 templates, AST pattern reference.
 - **Use when**: Unfamiliar codebase onboarding, shaping feature specs, enforcing deterministic verification before completion.
 
 #### `gemini-context-engineer`
-- **Capabilities**: JIT Context Compiler (MIP token bounding â‰¤600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit sync), Executable Workstream Proofs (anti-premature completion harness)
+- **Capabilities**: JIT Context Compiler (MIP token bounding ≤600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit sync), Executable Workstream Proofs (anti-premature completion harness)
 - **Structure**: 8 scripts, 9 reference guides, 5 test files, evals, benchmarks, assets
 - **Use when**: Creating/maintaining GEMINI.md, mapping repo architecture, compiling task context, guarding git boundaries, verifying execution contracts
 
@@ -44,9 +44,9 @@
 
 ---
 
-## ðŸš€ Install
+## 🚀 Install
 
-### From Source (Always Works â€” Recommended)
+### From Source (Always Works — Recommended)
 
 ```bash
 git clone https://github.com/Snoozer10/synthesize-skills
@@ -58,12 +58,12 @@ bash install.sh --force  # POSIX
 
 **What happens:**
 1. Validates all 3 skills (CI gate)
-2. Generates `manifest.json` mapping skills â†’ host paths
-3. Copies skills to 8 host directories:
+2. Generates `manifest.json` mapping skills → host paths
+3. Copies skills to 4 host directories:
    - `.agents/skills/` (canonical)
    - `.claude/skills/`
    - `.opencode/skills/`
-   - `.gemini/skills/``n   - `.codex/skills/``n   - `.cursor/skills/``n   - `.windsurf/skills/``n   - `.copilot/skills/`
+   - `.gemini/skills/`
 4. SHA256 comparison skips identical files; creates `.bak` backups
 
 ### From npm (Published Package)
@@ -85,7 +85,7 @@ repo-sync add <skill>
 
 ---
 
-## ðŸ–¥ï¸ Universal Platform Support (8 Host Ecosystems)
+## 🖥️ Universal Platform Support (8 Host Ecosystems)
 
 | Platform | Project Target | User-Global Target | Native Adapter |
 |---|---|---|---|
@@ -117,7 +117,7 @@ repo-sync add <skill>
 
 ---
 
-## ðŸ”„ Workflow: RED â†’ GREEN â†’ REFACTOR
+## 🔄 Workflow: RED → GREEN → REFACTOR
 
 Per `docs/WORKFLOW.md`:
 
@@ -126,17 +126,17 @@ Per `docs/WORKFLOW.md`:
 3. **REFACTOR**: Add explicit counters and red-flags for new rationalizations. Re-verify. Keep token cost flat (move heavy refs to `references/`).
 
 **Stop-gate rules:**
-- One skill at a time â€” untested edit = revert
+- One skill at a time — untested edit = revert
 - Never batch-create skills
 - Pressure test must exist before skill implementation
 - Run `python scripts/validate.py` before every commit
 
 ---
 
-## ðŸ› ï¸ Development Commands
+## 🛠️ Development Commands
 
 ```bash
-# Validation (CI gate â€” REQUIRED before commit)
+# Validation (CI gate — REQUIRED before commit)
 python scripts/validate.py                    # All skills
 python scripts/validate.py .agents/skills/<name>  # Single skill
 
@@ -164,7 +164,7 @@ python tests/test_release_sync_pressure.py -v   # Drift detection + atomic bump 
 
 ---
 
-## ðŸ“¦ Release Automation
+## 📦 Release Automation
 
 ### Standard Release Flow (Triggers OIDC Dual-Registry Publish)
 
@@ -193,56 +193,68 @@ git push origin main --tags
 
 | Secret | Type | How to Create |
 |--------|------|---------------|
-| `NPM_TOKEN` | **npm Classic Automation token** (NOT Publish/personal — 2FA causes EOTP; CLI creation blocked for 2FA accounts) | Web UI: [npmjs.com ? Access Tokens ? Generate New ? Classic ? Automation](https://www.npmjs.com/settings/snoozer10/tokens/new) |
+| `NPM_TOKEN` | **npm automation token** (NOT personal token — 2FA causes EOTP) | `npm token create --type=automation --read-only=false --cidr=0.0.0.0/0` |
 | `GITHUB_TOKEN` | Auto-provided by GitHub Actions | Requires `packages: write` permission (set in workflow) |
 
 ---
 
-## ðŸ—ï¸ Architecture
+## 🏗️ Architecture
 
 ```
 synthesize-skills/
-â”œâ”€â”€ .agents/skills/           # canonical skills (SSOT)
-â”‚   â”œâ”€â”€ gemini-context-engineer/
-â”‚   â”œâ”€â”€ repo-blast-radius-sync/
-â”‚   â””â”€â”€ release-sync/
-â”œâ”€â”€ templates/
-â”‚   â””â”€â”€ skill-template/       # SKILL.md starter (not installed)
-â”œâ”€â”€ scripts/
-â”‚   â”œâ”€â”€ validate.py           # Skill validator (CI gate)
-â”‚   â”œâ”€â”€ manifest.py           # Generates manifest.json
-â”‚   â””â”€â”€ release_sync.py       # Version parity gate + atomic bump
-â”œâ”€â”€ tests/
-â”‚   â”œâ”€â”€ test_blast_radius_parity.py
-â”‚   â”œâ”€â”€ test_release_sync_pressure.py
-â”‚   â””â”€â”€ test_release_sync_smoke.py
-â”œâ”€â”€ exercises/                # RED-GREEN-REFACTOR learning modules
-â”‚   â”œâ”€â”€ 01-skill-authoring/       # 3 scenarios
-â”‚   â”œâ”€â”€ 02-pressure-testing/      # 2 scenarios
-â”‚   â”œâ”€â”€ 03-validation/            # 2 scenarios
-â”‚   â””â”€â”€ 04-release-sync/          # 2 scenarios (drift, atomic bump)
-â”œâ”€â”€ docs/
-â”‚   â”œâ”€â”€ WORKFLOW.md           # RED-GREEN-REFACTOR stop-gate
-â”‚   â”œâ”€â”€ CONTRIBUTING.md       # Naming, description, validation rules
-â”‚   â”œâ”€â”€ error-solving/
-â”‚   â”‚   â””â”€â”€ understood-errors.md  # 15+ known error patterns
-â”‚   â”œâ”€â”€ handoff.md            # Session handoff template
-â”‚   â””â”€â”€ plan/                 # Implementation plans
-â”œâ”€â”€ .github/workflows/
-â”‚   â”œâ”€â”€ validate.yml          # CI: validate on push/PR (Windows + Ubuntu)
-â”‚   â””â”€â”€ release.yml           # CD: OIDC dual-registry publish on v* tags
-â”œâ”€â”€ Research and docs/        # upstream research (READ-ONLY)
-â”œâ”€â”€ The Created Skills/       # staging area (READ-ONLY)
-â”œâ”€â”€ install.ps1               # Windows installer (SHA256 + .bak)
-â”œâ”€â”€ install.sh                # POSIX installer (SHA256 + .bak)
-â”œâ”€â”€ manifest.json             # skill â†’ host path mapping (generated)
-â”œâ”€â”€ VERSION                   # Semver (synced by release_sync.py)
-â”œâ”€â”€ GEMINI.md                 # Project context for Gemini CLI
-â”œâ”€â”€ CONTINUITY.md             # Project state ledger
-â”œâ”€â”€ CHANGELOG.md              # Keep a Changelog format
-â”œâ”€â”€ README.md                 # This file
-â”œâ”€â”€ package.json              # npm package config
-â””â”€â”€ LICENSE                   # MIT
+├── .agents/skills/           # canonical skills (SSOT)
+│   ├── gemini-context-engineer/
+│   ├── repo-blast-radius-sync/
+│   ├── release-sync/
+│   └── repo-standards-engineer/
+├── templates/
+│   └── skill-template/       # SKILL.md starter (not installed)
+├── scripts/
+│   ├── validate.py           # Skill validator (CI gate)
+│   ├── manifest.py           # Generates manifest.json (8 hosts)
+│   ├── compile_adapters.py   # Compiles native adapters (6 host formats)
+│   ├── detect_hosts.py       # Detects installed host platforms
+│   ├── discover_standards.py # AST & regex standards discovery
+│   ├── inject_standards.py   # JIT MIP token-bounded injector (≤600 tokens)
+│   ├── index_standards.py    # Symbol & standards indexer
+│   ├── shape_spec.py         # Spec Shaper & verification generator
+│   ├── verify_spec.py        # Executable contract verification engine
+│   └── release_sync.py       # Version parity gate + atomic bump
+├── tests/
+│   ├── test_standards_engine.py
+│   ├── test_installer_concurrency_rollback.py
+│   ├── test_compile_adapters.py
+│   ├── test_edge_cases_and_fault_injection.py
+│   ├── test_blast_radius_parity.py
+│   ├── test_release_sync_pressure.py
+│   └── test_release_sync_smoke.py
+├── exercises/                # RED-GREEN-REFACTOR learning modules
+│   ├── 01-skill-authoring/       # 3 scenarios
+│   ├── 02-pressure-testing/      # 2 scenarios
+│   ├── 03-validation/            # 2 scenarios
+│   └── 04-release-sync/          # 2 scenarios (drift, atomic bump)
+├── docs/
+│   ├── WORKFLOW.md           # RED-GREEN-REFACTOR stop-gate
+│   ├── CONTRIBUTING.md       # Naming, description, validation rules
+│   ├── error-solving/
+│   │   └── understood-errors.md  # 17+ known error patterns
+│   ├── handoff.md            # Session handoff template
+│   └── plan/                 # Implementation plans
+├── .github/workflows/
+│   ├── validate.yml          # CI: validate on push/PR (Windows + Ubuntu)
+│   └── release.yml           # CD: OIDC dual-registry publish on v* tags
+├── Research and docs/        # upstream research (READ-ONLY)
+├── The Created Skills/       # staging area (READ-ONLY)
+├── install.ps1               # Windows installer (PowerShell native, locking, rollback)
+├── install.sh                # POSIX installer (pure shell, locking, rollback)
+├── manifest.json             # skill → host path mapping (8 hosts)
+├── VERSION                   # Semver (synced by release_sync.py)
+├── GEMINI.md                 # Project context for Gemini CLI
+├── CONTINUITY.md             # Project state ledger
+├── CHANGELOG.md              # Keep a Changelog format
+├── README.md                 # This file
+├── package.json              # npm package config
+└── LICENSE                   # MIT
 ```
 
 ### Component Reference
@@ -252,7 +264,10 @@ synthesize-skills/
 | Canonical Skills | `.agents/skills/` | Single source of truth for all installed skills |
 | Starter Template | `templates/skill-template/SKILL.md` | Skeleton for new skills (frontmatter + body) |
 | Validator | `scripts/validate.py` | Enforces naming, frontmatter, body structure per skill |
-| Manifest Generator | `scripts/manifest.py` | Maps skill â†’ host install paths (`.agents`, `.claude`, `.opencode`, `.gemini`) |
+| Manifest Generator | `scripts/manifest.py` | Maps skill → host install paths across 8 host ecosystems |
+| Adapter Compiler | `scripts/compile_adapters.py` | Compiles native adapter commands, rules, and instructions |
+| Standards Engine | `scripts/discover_standards.py` | AST and pattern discovery, SHA-256 caching, token-bounded JIT injection |
+| Spec Engine | `scripts/shape_spec.py` / `verify_spec.py` | Spec Shaper and deterministic executable verification contracts |
 | Release Sync | `scripts/release_sync.py` | Version parity gate + atomic semver bump |
 | Pressure Tests | `tests/` | Scenario fixtures verifying skill behavior under edge cases |
 | Exercises | `exercises/` | Learning modules: skill-authoring, pressure-testing, validation, release-sync |
@@ -262,19 +277,19 @@ synthesize-skills/
 | Handoff Template | `docs/handoff.md` | Session handoff template for agent continuity |
 | CI Pipeline | `.github/workflows/validate.yml` | Runs `scripts/validate.py` on push/PR (Windows + Ubuntu) |
 | Release Pipeline | `.github/workflows/release.yml` | OIDC trusted publisher dual-registry publish on `v*` tags |
-| Windows Installer | `install.ps1` | Copies skills to host dirs with SHA256 compare and backup |
+| Windows Installer | `install.ps1` | Copies skills to host dirs with SHA256 compare, backup, lock, rollback |
 | POSIX Installer | `install.sh` | Same as above for POSIX systems |
 
 ---
 
-## âš™ï¸ Validation Rules (Exit Codes Matter)
+## ⚙️ Validation Rules (Exit Codes Matter)
 
 | Check | Severity | Exit Code |
 |-------|----------|-----------|
 | `name` regex `^[a-z0-9]+(-[a-z0-9]+)*$` | ERROR | 1 |
 | `dir == frontmatter name` (allowlist: `skill-template`/`skill-name`) | ERROR | 1 |
 | `description` 1-500 chars | ERROR | 1 |
-| Frontmatter raw â‰¤1024 chars | ERROR | 1 |
+| Frontmatter raw ≤1024 chars | ERROR | 1 |
 | Body <500 lines | ERROR | 1 |
 | Runnable code fence required (```python\|bash\|sh\|ps1\|js\|ts) | ERROR | 1 |
 | `description` starts with "Use when" | WARN | 0 |
@@ -287,7 +302,7 @@ synthesize-skills/
 
 ---
 
-## ðŸ”„ Version Sync (Atomic, 5 Files)
+## 🔄 Version Sync (Atomic, 5 Files)
 
 `release_sync.py --bump patch --apply` updates atomically with rollback:
 
@@ -303,27 +318,27 @@ Version: 1.1.0
 
 ---
 
-## ðŸ›‘ Hard Constraints (Violations = Revert)
+## 🛑 Hard Constraints (Violations = Revert)
 
-1. **Stdlib-only scripts** â€” `scripts/` uses Python stdlib only. No `pip`/`npm` deps.
-2. **One skill at a time** â€” RED-GREEN-REFACTOR stop-gate (`docs/WORKFLOW.md`). Untested edit = revert.
-3. **No batch-create** â€” Pressure test first (RED), minimal skill second (GREEN), close loopholes third (REFACTOR).
-4. **Read-only zones** â€” Never touch `Research and docs/` or `The Created Skills/` without explicit ask.
-5. **Dir name = frontmatter `name`** â€” Only `skill-template`/`skill-name` allowlisted mismatch.
-6. **Validate before commit** â€” `python scripts/validate.py` must exit 0.
+1. **Stdlib-only scripts** — `scripts/` uses Python stdlib only. No `pip`/`npm` deps.
+2. **One skill at a time** — RED-GREEN-REFACTOR stop-gate (`docs/WORKFLOW.md`). Untested edit = revert.
+3. **No batch-create** — Pressure test first (RED), minimal skill second (GREEN), close loopholes third (REFACTOR).
+4. **Read-only zones** — Never touch `Research and docs/` or `The Created Skills/` without explicit ask.
+5. **Dir name = frontmatter `name`** — Only `skill-template`/`skill-name` allowlisted mismatch.
+6. **Validate before commit** — `python scripts/validate.py` must exit 0.
 
 ---
 
-## ðŸ§ª Testing Quirks
+## 🧪 Testing Quirks
 
-- **No pytest/Jest** â€” Validation IS the test suite. `scripts/validate.py` is the gate.
+- **No pytest/Jest** — Validation IS the test suite. `scripts/validate.py` is the gate.
 - **Pressure tests** live in `tests/` (e.g., `test_release_sync_pressure.py` for drift/bump scenarios).
 - **Exercises** in `exercises/` are learning modules, not CI tests.
 - **Pre-commit hook** available: `python scripts/release_sync.py --install-hooks`
 
 ---
 
-## ðŸ”§ OpenCode Config (`.opencode.json`)
+## 🔧 OpenCode Config (`.opencode.json`)
 
 ```json
 {
@@ -343,7 +358,7 @@ Version: 1.1.0
 
 ---
 
-## ðŸ“ Key Files to Know
+## 📁 Key Files to Know
 
 | File | Purpose |
 |------|---------|
@@ -362,21 +377,21 @@ Version: 1.1.0
 
 ---
 
-## âš ï¸ Common Pitfalls (Agents Miss These)
+## ⚠️ Common Pitfalls (Agents Miss These)
 
 | Pitfall | Fix |
 |---------|-----|
 | Editing `Research and docs/` or `The Created Skills/` | Don't. Read-only unless explicitly asked. |
 | Forgetting `python scripts/manifest.py` after adding skill | Run it. `manifest.json` must be committed. |
-| Using personal npm token (2FA) in CI | Create **Classic Automation token** via web UI: npmjs.com ? Access Tokens ? Classic ? Automation scope |
+| Using personal npm token (2FA) in CI | Use **automation token**: `npm token create --type=automation` |
 | Missing `packages: write` for GitHub Packages | Workflow has `permissions: packages: write` at job level. |
 | Manually editing VERSION/package.json/GEMINI.md | Use `release_sync.py --bump patch --apply` |
-| Batch-creating skills | One at a time. RED â†’ GREEN â†’ REFACTOR. |
+| Batch-creating skills | One at a time. RED → GREEN → REFACTOR. |
 | Assuming `validate.py` catches everything | Run it against the specific skill: `python scripts/validate.py .agents/skills/<name>` |
 
 ---
 
-## ðŸ”— References
+## 🔗 References
 
 - Workflow: `docs/WORKFLOW.md`
 - Contributing: `docs/CONTRIBUTING.md`
