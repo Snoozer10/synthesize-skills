@@ -300,8 +300,14 @@ def validate_markdown(
     ]
 
     content_normalized = strip_variation_selectors(content)
-    found_h2s = re.findall(r"^## (.*)$", content_normalized, re.MULTILINE)
-    found_h2s = ["## " + h2.strip() for h2 in found_h2s]
+    found_h2s = []
+    in_code_block = False
+    for line in content_normalized.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_code_block = not in_code_block
+        elif not in_code_block and line.startswith("## "):
+            found_h2s.append("## " + line[3:].strip())
 
     for req in required_h2s:
         if strip_variation_selectors(req) not in found_h2s:
@@ -362,11 +368,17 @@ def validate_markdown(
     }
     architecture_section_text = ""
     in_arch = False
+    in_code_block = False
     for line in lines:
-        if line.strip() == "## 🏗️ Architecture & Component Mapping":
-            in_arch = True
-        elif line.startswith("## ") and in_arch:
-            in_arch = False
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_code_block = not in_code_block
+        elif not in_code_block:
+            clean_line = strip_variation_selectors(line).strip()
+            if clean_line == strip_variation_selectors("## 🏗️ Architecture & Component Mapping"):
+                in_arch = True
+            elif line.startswith("## ") and in_arch:
+                in_arch = False
         if in_arch:
             architecture_section_text += line + "\n"
 
@@ -430,13 +442,18 @@ def validate_markdown(
 
     section_5_text = ""
     in_sec_5 = False
+    in_code_block = False
     for line in lines:
-        clean_line = strip_variation_selectors(line).strip()
-        if clean_line == "## 🔄 Active Workstreams & Verification Status":
-            in_sec_5 = True
-        elif line.startswith("## ") and in_sec_5:
-            if clean_line != "## 🔄 Active Workstreams & Verification Status":
-                in_sec_5 = False
+        stripped = line.strip()
+        if stripped.startswith("```") or stripped.startswith("~~~"):
+            in_code_block = not in_code_block
+        elif not in_code_block:
+            clean_line = strip_variation_selectors(line).strip()
+            if clean_line == "## 🔄 Active Workstreams & Verification Status":
+                in_sec_5 = True
+            elif line.startswith("## ") and in_sec_5:
+                if clean_line != "## 🔄 Active Workstreams & Verification Status":
+                    in_sec_5 = False
         if in_sec_5:
             section_5_text += line + "\n"
 

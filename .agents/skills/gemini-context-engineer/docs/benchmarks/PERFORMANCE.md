@@ -1,7 +1,7 @@
 # Performance Benchmark Report
 ## eval-1-polyglot-create - ✅ PASS
 ### Metrics & Assertions
-- latency_ms: 368.01749999722233 < 1500.0 -> True
+- latency_ms: 485.3325000003679 < 1500.0 -> True
 - token_count: 1500 < 2500.0 -> True
 - exit_code: 0 == 0 -> True
 - deep_modules_found: 1 >= 1.0 -> True
@@ -23,21 +23,21 @@
 ## eval-5-jit-compiler-slicing - ✅ PASS
 ### Metrics & Assertions
 - exit_code: 0 == 0 -> True
-- latency_ms: 266.61730000341777 < 600.0 -> True
+- latency_ms: 263.4621999968658 < 600.0 -> True
 - token_count: 77 <= 500.0 -> True
 - invariants_preserved: True == True -> True
 
 ## eval-6-vcs-daemon-diff - ✅ PASS
 ### Metrics & Assertions
 - exit_code: 0 == 0 -> True
-- latency_ms: 398.66539999638917 < 1000.0 -> True
+- latency_ms: 421.3716999947792 < 1000.0 -> True
 - signature_drift_detected: True == True -> True
 - auto_patch_success: True == True -> True
 
 ## eval-7-workstream-proofs - ✅ PASS
 ### Metrics & Assertions
 - exit_code: 0 == 0 -> True
-- latency_ms: 759.3017000035616 < 1000.0 -> True
+- latency_ms: 803.2964000012726 < 1000.0 -> True
 - dependency_blocked_verified: True == True -> True
 - task_transitioned_done: True == True -> True
 - downstream_unlocked: True == True -> True

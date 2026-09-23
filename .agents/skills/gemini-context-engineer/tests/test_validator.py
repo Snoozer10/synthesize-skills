@@ -77,6 +77,24 @@ last_indexed: "2026-09-03"
         diag3 = validate_markdown(bad_content, self.test_path / "test.md", self.test_path)
         self.assertGreater(len(diag3["errors"]), 0)
 
+    def test_h2_headers_ignore_code_fences(self):
+        content = self.get_valid_frontmatter() + "# Project Context: Main Title\n"
+        required_h2s = [
+            "## 🎯 Project Overview",
+            "## 🏗️ Architecture & Component Mapping",
+            "## 🛑 Mandatory Engineering Constraints",
+            "## 🛠️ Common Workflows & CLI Commands",
+            "## 🔄 Active Workstreams & Verification Status",
+        ]
+        content += required_h2s[0] + "\n"
+        content += "```bash\n# ## comment\n## fake header in backticks\n```\n"
+        content += required_h2s[1] + "\n"
+        content += "~~~markdown\n## fake header in tildes\n~~~\n"
+        content += "\n".join(required_h2s[2:]) + "\n"
+
+        diag = validate_markdown(content, self.test_path / "test.md", self.test_path)
+        self.assertEqual(len(diag["errors"]), 0)
+
     def test_dual_budget_validation(self):
         pass_content = self.get_valid_frontmatter() + "a\n" * 300
         diag = validate_markdown(pass_content, self.test_path / "test.md", self.test_path)

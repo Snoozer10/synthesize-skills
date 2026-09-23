@@ -255,5 +255,74 @@ class TestIndexer(unittest.TestCase):
         self.assertIsInstance(res, dict)
 
 
+    def test_federate_preserves_substantive_content_and_idempotent(self):
+        (self.test_path / "GEMINI.md").touch()
+        custom_agents = (
+            "# Custom Agent Instructions\n"
+            "Important orchestrator settings and tool definitions.\n"
+        )
+        custom_claude = (
+            "---\n"
+            "theme: dark\n"
+            "---\n"
+            "# Custom Claude Config\n"
+            "Claude-specific guidelines.\n"
+        )
+        (self.test_path / "AGENTS.md").write_text(custom_agents, encoding="utf-8")
+        (self.test_path / "CLAUDE.md").write_text(custom_claude, encoding="utf-8")
+
+        res = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).resolve().parent.parent / "scripts" / "repo_indexer.py"),
+                "--root",
+                str(self.test_path),
+                "--federate",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(res.returncode, 0)
+        data = json.loads(res.stdout)
+        fed = data.get("federation", {})
+        self.assertIn(fed.get("AGENTS.md"), ("federated_hybrid", "pointer_shim"))
+        self.assertIn(fed.get("CLAUDE.md"), ("federated_hybrid", "pointer_shim"))
+
+        agents_content = (self.test_path / "AGENTS.md").read_text(encoding="utf-8")
+        claude_content = (self.test_path / "CLAUDE.md").read_text(encoding="utf-8")
+
+        # Verify substantive content was preserved intact
+        self.assertIn("Important orchestrator settings and tool definitions.", agents_content)
+        self.assertIn("Claude-specific guidelines.", claude_content)
+
+        # Verify bounded banner is present
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:start -->", agents_content)
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:end -->", agents_content)
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:start -->", claude_content)
+        self.assertIn("<!-- AGENT-SYNC: GEMINI.md:end -->", claude_content)
+
+        # In CLAUDE.md, banner must be after frontmatter
+        self.assertTrue(claude_content.startswith("---\ntheme: dark\n---"))
+
+        # Verify idempotence on second run
+        res2 = subprocess.run(
+            [
+                sys.executable,
+                str(Path(__file__).resolve().parent.parent / "scripts" / "repo_indexer.py"),
+                "--root",
+                str(self.test_path),
+                "--federate",
+                "--json",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(res2.returncode, 0)
+        agents_content_2 = (self.test_path / "AGENTS.md").read_text(encoding="utf-8")
+        self.assertEqual(agents_content_2.count("<!-- AGENT-SYNC: GEMINI.md:start -->"), 1)
+        self.assertIn("Important orchestrator settings and tool definitions.", agents_content_2)
+
+
 if __name__ == "__main__":
     unittest.main()
