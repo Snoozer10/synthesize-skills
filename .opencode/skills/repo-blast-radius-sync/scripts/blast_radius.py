@@ -14,6 +14,11 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Set, Any
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 class BlastRadiusResolver:
     def __init__(self, root_dir: Path):
         self.root_dir = root_dir
@@ -22,8 +27,8 @@ class BlastRadiusResolver:
         
         # Regex patterns matching standard annotations
         self.doc_governs_pattern = re.compile(r"<!--\s*@governs:\s*([^\s]+?)\s*-->")
-        self.code_docs_pattern = re.compile(r"@docs:\s*([^\s'\"#<>]+)")
-        self.code_tests_pattern = re.compile(r"@tests:\s*([^\s'\"#<>]+)")
+        self.code_docs_pattern = re.compile(r"@docs:\s*[\"']?([^\s'\"#<>]+)[\"']?")
+        self.code_tests_pattern = re.compile(r"@tests:\s*[\"']?([^\s'\"#<>]+)[\"']?")
 
     def _load_registry(self) -> Dict[str, Any]:
         """Loads persistent registry from .agent/registry.json if exists."""
@@ -108,9 +113,15 @@ class BlastRadiusResolver:
 
     def resolve(self, target_file: str, symbol_filter: str = None) -> Dict[str, List[str]]:
         """Resolves full multi-dimensional blast radius for a target file."""
-        from pathlib import PurePosixPath
-        target_path = Path(target_file)
-        rel_target = PurePosixPath(str(target_path.relative_to(self.root_dir))).as_posix() if target_path.is_absolute() else PurePosixPath(target_file).as_posix()
+        norm_path = target_file.replace("\\", "/")
+        target_path = Path(norm_path)
+        if target_path.is_absolute():
+            try:
+                rel_target = target_path.resolve().relative_to(self.root_dir.resolve()).as_posix()
+            except ValueError:
+                rel_target = target_path.as_posix()
+        else:
+            rel_target = norm_path
         
         # Determine registry context
         reg_to_use = self.registry if self.registry.get("files") else self.scan_workspace_dynamically()

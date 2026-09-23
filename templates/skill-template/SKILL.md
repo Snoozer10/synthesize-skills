@@ -13,7 +13,7 @@ One technique in 1-2 sentences. Core principle stated plainly.
 - Symptom or trigger 2: error message, behavior, or request type
 - When NOT to use: one-off fix, unrelated stack, or project-specific rule
 
-Keywords: trigger, symptom, error, fallback, pattern, workflow
+Keywords: trigger, symptom, error, fallback, pattern, lifecycle
 
 ## Quick Reference
 | Situation | Action |

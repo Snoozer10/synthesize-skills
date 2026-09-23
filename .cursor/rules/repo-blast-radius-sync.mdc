@@ -1,11 +1,11 @@
 ---
-description: "Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync â€” detects blast radius and blocks orphaned commits"
+description: "Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync"
 globs: ["*"]
 alwaysApply: false
 ---
 
 # repo-blast-radius-sync Rule
-Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync â€” detects blast radius and blocks orphaned commits
+Use when modifying, refactoring, adding features, or fixing bugs in code, scripts, schemas, or configs where callers, tests, or docs must stay in sync
 
 Before applying this rule, read and comply with:
 - `.agents/skills/repo-blast-radius-sync/SKILL.md`

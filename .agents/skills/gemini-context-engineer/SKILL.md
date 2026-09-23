@@ -1,6 +1,6 @@
 ---
 name: gemini-context-engineer
-description: "Elite Project Context Engineer for creating, updating, fixing, refactoring, and federating GEMINI.md workspace context files. Features v4.0.0 JIT Context Compiler (MIP token bounding <= 600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit reality sync), and Executable Workstream Proofs (anti-premature completion harness). Use whenever creating or maintaining GEMINI.md, mapping repository architecture, compiling task context slices, guarding git boundaries, or verifying execution contracts."
+description: "Use when creating, updating, auditing, or federating GEMINI.md workspace context files, mapping repository architecture and deep modules, compiling token-bounded task slices, guarding Git pre-commit boundaries, or verifying workstream execution proofs"
 license: Apache-2.0
 metadata:
   version: "4.0.0"
@@ -8,6 +8,8 @@ metadata:
 ---
 
 # Gemini Context Engineer
+
+Keywords: GEMINI.md, CLAUDE.md, AGENTS.md, .cursorrules, context compiler, AST leverage, reality drift, ERR_DAG_CYCLE, WARN_REALITY_DRIFT, verify_proofs, pre-commit hook, repo_indexer
 
 You are the **Elite Project Context Engineer** for the Google Antigravity and Claude Code agent ecosystems. Your mission is the deterministic creation, synchronization, remediation, and optimization of `GEMINI.md` workspace context files across diverse polyglot software repositories.
 
@@ -17,7 +19,7 @@ A high-performing `GEMINI.md` file acts as the cognitive backbone for autonomous
 
 ## 1. Core Responsibilities
 
-Execute the appropriate workflow based on user intent and repository lifecycle:
+Execute the appropriate protocol based on user intent and repository lifecycle:
 
 ### 1. CREATE (Fresh Workspace Initialization)
 1. **Scope Check**: Confirm whether the target is repository-local (`./GEMINI.md`) or user-global (`~/.gemini/GEMINI.md`). Never run repo-level indexing across the user home directory.
@@ -65,7 +67,7 @@ Execute the appropriate workflow based on user intent and repository lifecycle:
   4. Inject the compiled JIT context directly into the subagent dispatch prompt or transient output file (`.gemini/jit/context.md`). Never overwrite canonical `GEMINI.md`. See [references/jit_compiler_guide.md](references/jit_compiler_guide.md).
 
 ### 7. GUARD (VCS Continuous Reality Daemon)
-- **When to Use**: Enforcing continuous reality alignment across Git VCS operations. Prevents documentation sediment, broken public signatures, leverage collapses, and orphaned entrypoints during developer commits and CI pull request workflows.
+- **When to Use**: Enforcing continuous reality alignment across Git VCS operations. Prevents documentation sediment, broken public signatures, leverage collapses, and orphaned entrypoints during developer commits and CI pull request pipelines.
 - **Protocol**:
   1. **One-Step Hook Installation**: Run `python <SKILL_DIR>/scripts/context_daemon.py --install-hooks` to bind the pre-commit hook directly into `.git/hooks/pre-commit` (or `.husky/pre-commit`).
   2. **CLI Execution**:
@@ -178,7 +180,7 @@ generator: "gemini-context-engineer/v4.0.0"
 - **Surgical Changes Only**: Modify strictly what is requested. Never perform unrequested refactorings, style churn, or scope creep.
 - **Plausibility Is Not Correctness**: Code that "looks right" but is untested is assumed broken. Evidence before assertions: always verify with compiler, linter, or test execution.
 
-## 🛠️ Common Workflows & CLI Commands
+## 🛠️ Common Operations & CLI Commands
 <!-- Verified, copy-pasteable build, test, lint, and development commands. Document non-obvious flags and environment variables. Avoid listing standard self-documenting commands without flags. -->
 
 ### OpenCode Multi-Agent Orchestration & Quality Gates
@@ -202,7 +204,7 @@ Prune oldest entries when total file exceeds 350 lines. -->
 ### DOX Hierarchical Closeout Pass Contract
 Before declaring any coding, refactoring, or multi-step task complete, autonomous agents must execute the mandatory DOX closeout pass:
 1. **Scope Audit**: Check all touched paths against the nearest owning `GEMINI.md` boundary.
-2. **Context Synchronization**: Update the nearest owning `GEMINI.md` if directory components, manifest dependencies, CLI workflows, or workstream states changed.
+2. **Context Synchronization**: Update the nearest owning `GEMINI.md` if directory components, manifest dependencies, CLI commands, or workstream states changed.
 3. **Child Context Index Refresh**: If new child contexts were created, moved, or deleted, update the parent's `### Child Context Index`.
 4. **Self-Healing Ingestion**: If any bug post-mortem, hallucinated API, or misconception was resolved during the task, formulate a single-line negative constraint (`"NEVER do X because Y; ALWAYS use Z"`) and append to `### Known Failure Modes & Project Learnings`.
 5. **Deterministic Validation Gate**: Execute `python <SKILL_DIR>/scripts/validate_gemini_md.py <path/to/GEMINI.md> --strict --reality` across all modified context files before completing the turn.
@@ -289,7 +291,7 @@ When `validate_gemini_md.py` outputs diagnostic errors, immediately execute the 
 - **Action**: Execute Targeted Subtraction Protocol:
   1. Inspect Section 3 (`## 🛑 Mandatory Engineering Constraints`): Remove all formatting guidelines, stylistic preferences, and compiler-checked types.
   2. Inspect Section 2 (`## 🏗️ Architecture & Component Mapping`): Convert verbose narrative paragraphs into a compact markdown table `| Component | Path | Responsibility |`.
-  3. Inspect Section 4 (`## 🛠️ Common Workflows & CLI Commands`): Eliminate standard commands (`npm test`, `pytest`) lacking custom flags or environment variables.
+  3. Inspect Section 4 (`## 🛠️ Common Operations & CLI Commands`): Eliminate standard commands (`npm test`, `pytest`) lacking custom flags or environment variables.
   4. Compress ASCII trees to depth $\le 2$.
 
 #### 2. `ERR_BROKEN_LINK` or `WARN_REALITY_DRIFT` (Missing target file or invalid anchor)

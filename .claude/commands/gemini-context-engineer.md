@@ -1,5 +1,5 @@
 # /gemini-context-engineer
-"Elite Project Context Engineer for creating, updating, fixing, refactoring, and federating GEMINI.md workspace context files. Features v4.0.0 JIT Context Compiler (MIP token bounding <= 600 tokens), VCS AST Delta Daemon (sub-100ms pre-commit reality sync), and Executable Workstream Proofs (anti-premature completion harness). Use whenever creating or maintaining GEMINI.md, mapping repository architecture, compiling task context slices, guarding git boundaries, or verifying execution contracts."
+"Use when creating, updating, auditing, or federating GEMINI.md workspace context files, mapping repository architecture and deep modules, compiling token-bounded task slices, guarding Git pre-commit boundaries, or verifying workstream execution proofs"
 
 ## Instructions
 When this command is invoked:

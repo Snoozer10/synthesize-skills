@@ -190,17 +190,15 @@ def slice_context(
                     ]
                 ):
                     invariants.append(line)
-                elif any(
-                    kw in line.lower()
-                    for kw in ["qsv", "nv12", "cdp", "whisper", "audacity", "lufs"]
-                ):
-                    if any(
-                        kw in (task_desc.lower() + " ".join(symbols).lower())
-                        for kw in ["qsv", "nv12", "cdp", "whisper", "audacity", "lufs"]
-                    ):
+                else:
+                    # Semantic keyword overlap between task/symbols and invariant line
+                    task_tokens = set(re.findall(r"\w+", (task_desc + " " + " ".join(symbols)).lower()))
+                    line_tokens = set(re.findall(r"\w+", line.lower()))
+                    stopwords = {"the", "and", "for", "with", "this", "that", "from", "always", "never", "must"}
+                    if (task_tokens & line_tokens) - stopwords:
                         invariants.append(line)
-                elif line.strip().startswith("-") or line.strip().startswith("###"):
-                    invariants.append(line)
+                    elif line.strip().startswith("-") or line.strip().startswith("###"):
+                        invariants.append(line)
             context.invariants = invariants
 
         if "CLI" in sec or "Workflow" in sec:
@@ -356,7 +354,12 @@ def main():
     )
 
     if args.json:
-        payload = {"metadata": meta, "compiled_markdown": md}
+        payload = {
+            "metadata": meta,
+            "compiled_markdown": md,
+            "compiled_context": md,
+            "token_count": meta.get("actual_tokens", 0),
+        }
         print(json.dumps(payload, indent=2))
     else:
         print(md)

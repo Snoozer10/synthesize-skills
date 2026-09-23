@@ -17,6 +17,11 @@ from pathlib import Path
 
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def _find_root():
     cur = Path.cwd()
@@ -69,11 +74,29 @@ def _atomic_write(target, content):
         raise
 
 
+def _atomic_write_bytes(target, data: bytes):
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(target.parent), prefix="tmp.")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(data)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, str(target))
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except Exception:
+            pass
+        raise
+
+
 def _run_check(root):
     check_py = Path(__file__).parent / "check.py"
     r = subprocess.run(
         [sys.executable, str(check_py)],
-        cwd=str(root), capture_output=True, text=True, shell=False,
+        cwd=str(root), capture_output=True, text=True,
+        encoding="utf-8", errors="replace", shell=False,
     )
     return r.returncode == 0
 
@@ -135,8 +158,14 @@ def bump(kind, apply=False, as_json=False, root=None):
 
     # read originals for rollback
     originals = {}
+    existed = {}
     targets = [root / "VERSION", root / "GEMINI.md", root / "package.json"]
+    readme_p = root / "README.md"
+    if readme_p.exists():
+        targets.append(readme_p)
+
     for p in targets:
+        existed[p] = p.exists()
         if p.exists():
             originals[p] = p.read_bytes()
 
@@ -150,19 +179,28 @@ def bump(kind, apply=False, as_json=False, root=None):
         gemini = root / "GEMINI.md"
         if gemini.exists():
             t = gemini.read_text(encoding="utf-8")
-            t = re.sub(r'^(version:\s*)"[^"]+"', rf'\1"{new}"', t, flags=re.MULTILINE)
-            t = re.sub(r'^(last_indexed:\s*)"[^"]+"', rf'\1"{today}"', t, flags=re.MULTILINE)
+            t = re.sub(r'^(version:\s*)["\']?[^"\'\r\n]+["\']?', rf'\1"{new}"', t, flags=re.MULTILINE)
+            t = re.sub(r'^(last_indexed:\s*)["\']?[^"\'\r\n]+["\']?', rf'\1"{today}"', t, flags=re.MULTILINE)
             _atomic_write(gemini, t)
 
         # package.json
         pkg = root / "package.json"
         if pkg.exists():
-            try:
-                pj = json.loads(pkg.read_text(encoding="utf-8"))
-                pj["version"] = new
-                _atomic_write(pkg, json.dumps(pj, indent=2) + "\n")
-            except Exception:
-                pass
+            pj = json.loads(pkg.read_text(encoding="utf-8"))
+            pj["version"] = new
+            _atomic_write(pkg, json.dumps(pj, indent=2) + "\n")
+
+        # README.md
+        if readme_p.exists():
+            rt = readme_p.read_text(encoding="utf-8")
+            if "<!-- release-sync:start -->" in rt:
+                rt = re.sub(
+                    r"(<!-- release-sync:start -->).*?(<!-- release-sync:end -->)",
+                    rf"\g<1>Version: {new}\g<2>",
+                    rt,
+                    flags=re.DOTALL,
+                )
+                _atomic_write(readme_p, rt)
 
         # post-check
         if not _run_check(root):
@@ -172,7 +210,13 @@ def bump(kind, apply=False, as_json=False, root=None):
         print(f"error: bump failed, rolling back: {e}", file=sys.stderr)
         for p, data in originals.items():
             try:
-                _atomic_write(p, data.decode("utf-8"))
+                _atomic_write_bytes(p, data)
+            except Exception:
+                pass
+        version_p = root / "VERSION"
+        if not existed.get(version_p, False) and version_p.exists():
+            try:
+                version_p.unlink()
             except Exception:
                 pass
         return 1

@@ -43,5 +43,10 @@ python .agents/skills/release-sync/scripts/bump.py major --apply
 
 ```yaml
 # .github/workflows/validate.yml
-- run: python .agents/skills/release-sync/scripts/check.py
+- run: python scripts/release_sync.py --check
+```
+
+*For standalone or external repositories without `scripts/`:*
+```bash
+python .agents/skills/release-sync/scripts/check.py
 ```

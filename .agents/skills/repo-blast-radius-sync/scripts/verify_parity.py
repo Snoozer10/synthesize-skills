@@ -17,6 +17,11 @@ try:
 except ImportError:
     from scripts.blast_radius import BlastRadiusResolver
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 class ParityVerifier:
     def __init__(self, root_dir: Path, strict_mode: bool = False, staged_only: bool = False, dry_run: bool = False):
         self.root_dir = root_dir
@@ -24,6 +29,7 @@ class ParityVerifier:
         self.strict_mode = strict_mode
         self.staged_only = staged_only
         self.dry_run = dry_run
+        self.stale_registry = False
 
     def get_dirty_git_files(self) -> Set[str]:
         """Obtains changed files via -z NUL parse with line-mode fallback."""
@@ -55,7 +61,8 @@ class ParityVerifier:
                         if ns.startswith('"') and ns.endswith('"'):
                             try: ns = ns[1:-1].encode("utf-8").decode("unicode_escape").encode("latin1").decode("utf-8", errors="replace")
                             except: pass
-                        s = ns
+                        # Preserve both the old origin path and the new target path
+                        dirty_files.add(PurePosixPath(ns).as_posix())
                 ps = PurePosixPath(s).as_posix()
                 staged_indicator = chr(xy[0]) if len(xy) > 0 else " "
                 unstaged_indicator = chr(xy[1]) if len(xy) > 1 else " "
@@ -94,19 +101,30 @@ class ParityVerifier:
         except Exception as e:
             print(f"Warning: Failed to parse git workspace state: {e}", file=sys.stderr)
         # stale registry check
+        self.stale_registry = False
         try:
             reg = self.root_dir / ".agent" / "registry.json"
             if reg.exists():
                 mtime = reg.stat().st_mtime
-                max_src = max((p.stat().st_mtime for p in self.root_dir.rglob("*.py") if p.is_file()), default=mtime)
+                ignore_dirs = {".git", "node_modules", ".venv", "venv", "__pycache__", "dist", "build"}
+                py_files = [
+                    p for p in self.root_dir.rglob("*.py")
+                    if p.is_file() and not any(part in ignore_dirs for part in p.parts)
+                ]
+                max_src = max((p.stat().st_mtime for p in py_files), default=mtime)
                 if max_src > mtime:
+                    self.stale_registry = True
                     print("ERR_STALE_REGISTRY: registry stale, run build_registry", file=sys.stderr)
-        except: pass
+        except Exception:
+            pass
         return {PurePosixPath(p).as_posix().replace("\\", "/") for p in dirty_files}
 
     def verify(self) -> int:
         """Audits dirty files vs their target blast-radius constraints."""
         dirty_files = self.get_dirty_git_files()
+        if self.stale_registry and self.strict_mode:
+            print("CRITICAL VERIFICATION ERROR: Stale registry detected in strict mode. Run build_registry.py.", file=sys.stderr)
+            return 1
         if not dirty_files:
             print("Parity Verification PASSED: Git workspace is fully clean.")
             return 0

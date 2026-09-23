@@ -37,6 +37,18 @@
         "required": ["imports", "docs", "tests", "governed_by"],
         "additionalProperties": false
       }
+    },
+    "skipped": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "reason": { "type": "string" }
+        },
+        "required": ["path", "reason"],
+        "additionalProperties": false
+      }
     }
   },
   "required": ["version", "files"],

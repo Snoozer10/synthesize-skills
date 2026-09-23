@@ -27,11 +27,13 @@ def compute_tree_sha256(root: Path) -> tuple[str, list[Path]]:
     files = []
     hasher = hashlib.sha256()
     for p in sorted(root.rglob("*")):
-        if p.is_file() and not any(part in IGNORE_DIRS for part in p.parts):
-            if p.suffix.lower() in {".py", ".js", ".ts", ".jsx", ".tsx", ".sql", ".json"}:
-                files.append(p)
-                hasher.update(str(p.relative_to(root)).encode("utf-8"))
-                hasher.update(get_file_sha256(p).encode("utf-8"))
+        if p.is_file():
+            rel = p.relative_to(root)
+            if not any(part in IGNORE_DIRS for part in rel.parts):
+                if p.suffix.lower() in {".py", ".js", ".ts", ".jsx", ".tsx", ".sql", ".json"}:
+                    files.append(p)
+                    hasher.update(rel.as_posix().encode("utf-8"))
+                    hasher.update(get_file_sha256(p).encode("utf-8"))
     return hasher.hexdigest(), files
 
 

@@ -15,6 +15,11 @@ from pathlib import Path
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def _find_root():
     cur = Path.cwd()
@@ -37,8 +42,8 @@ def _read_gemini_version(root):
     if not p.exists():
         return ""
     t = p.read_text(encoding="utf-8")
-    m = re.search(r'^version:\s*"([^"]+)"', t, re.MULTILINE)
-    return m.group(1) if m else ""
+    m = re.search(r'^version:\s*["\']?([^"\']+)["\']?', t, re.MULTILINE)
+    return m.group(1).strip() if m else ""
 
 
 def _read_package_version(root):
@@ -47,14 +52,19 @@ def _read_package_version(root):
         return ""
     try:
         return json.loads(p.read_text(encoding="utf-8")).get("version", "")
-    except Exception:
+    except Exception as e:
+        print(f"warn: package.json parse error: {e}", file=sys.stderr)
         return ""
 
 
 def _run_validate(root):
+    val_py = root / "scripts" / "validate.py"
+    if not val_py.exists():
+        return True
     r = subprocess.run(
-        [sys.executable, str(root / "scripts" / "validate.py")],
-        cwd=str(root), capture_output=True, text=True, shell=False,
+        [sys.executable, str(val_py)],
+        cwd=str(root), capture_output=True, text=True,
+        encoding="utf-8", errors="replace", shell=False,
     )
     return r.returncode == 0
 
@@ -144,6 +154,10 @@ def check(root=None, as_json=False):
 def main(argv=None):
     args = list(argv or sys.argv[1:])
     as_json = "--json" in args
+    extra = [a for a in args if a != "--json"]
+    if extra:
+        print(f"usage error: unrecognized arguments {extra!r}", file=sys.stderr)
+        return 2
     return check(as_json=as_json)
 
 

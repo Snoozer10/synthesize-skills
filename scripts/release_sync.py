@@ -26,7 +26,7 @@ def git_dir(root):
     return p if p.is_absolute() else root / p
 
 def semver_parse(v):
-    m=re.match(r"^\s*(\d+)\.(\d+)\.(\d+)", v.strip())
+    m = re.match(r"^\s*(\d+)\.(\d+)\.(\d+)\s*$", v.strip())
     if not m: raise ValueError(f"bad semver {v!r}")
     return tuple(int(x) for x in m.groups())
 
@@ -108,8 +108,8 @@ def run_indexer(root):
     return True
 
 def atomic_write(target, content, gdir):
-    gdir.mkdir(parents=True, exist_ok=True)
-    fd, tmp = tempfile.mkstemp(dir=str(gdir), prefix="tmp.")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=str(target.parent), prefix="tmp.")
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
             f.write(content)
@@ -268,25 +268,30 @@ def do_bump(root, gdir, kind, allow_auto_patch, apply):
     return 0
 
 def install_hooks(root):
-    hook=root/".git/hooks/pre-commit"
-    # worktree-safe: hooks live in git-dir, but .git/hooks is canonical for main worktree
-    gdir=git_dir(root)
-    # ensure hooks dir exists (resolve symlink case)
-    try: hook.parent.mkdir(parents=True, exist_ok=True)
-    except Exception: pass
-    content="#!/bin/sh\n# release_sync pre-commit hook\npython scripts/release_sync.py --check || exit 1\n"
-    # write via atomic in gdir then move to hook
+    gdir = git_dir(root)
+    hooks_dir = gdir / "hooks"
     try:
-        fd, tmp = tempfile.mkstemp(dir=str(gdir))
-        with os.fdopen(fd,"w", encoding="utf-8", newline="\n") as f:
-            f.write(content); f.flush(); os.fsync(f.fileno())
+        hooks_dir.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+    hook = hooks_dir / "pre-commit"
+    content = "#!/bin/sh\n# release_sync pre-commit hook\npython scripts/release_sync.py --check || exit 1\n"
+    try:
+        fd, tmp = tempfile.mkstemp(dir=str(hooks_dir), prefix="tmp.")
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
         os.replace(tmp, str(hook))
-        try: os.chmod(str(hook), 0o755)
-        except Exception: pass
+        try:
+            os.chmod(str(hook), 0o755)
+        except Exception:
+            pass
         print(f"installed hook {hook}")
         return 0
     except Exception as e:
-        print(f"install hook failed: {e}", file=sys.stderr); return 1
+        print(f"install hook failed: {e}", file=sys.stderr)
+        return 1
 
 def main(argv=None):
     argv=argv if argv is not None else sys.argv[1:]

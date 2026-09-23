@@ -24,6 +24,10 @@ def shape_spec(
     assert_files = assert_files or []
     assert_commands = assert_commands or []
 
+    import re
+    if not re.match(r"^[a-z0-9]+(-[a-z0-9]+)*$", slug):
+        raise ValueError(f"Invalid slug '{slug}': must match ^[a-z0-9]+(-[a-z0-9]+)*$")
+
     spec_dir = root / "specs" / slug
     spec_dir.mkdir(parents=True, exist_ok=True)
 

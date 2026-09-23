@@ -73,12 +73,30 @@ def test_failing_assertion_verification():
         assert report["command_failures"][0]["exit_code"] != 0
 
 
+def test_empty_assertions_rejected():
+    """verify_spec with 0 assertions must fail (anti-premature completion gate) unless --allow-empty."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        spec_dir = tmp / "specs" / "empty"
+        spec_dir.mkdir(parents=True, exist_ok=True)
+        v_data = {"slug": "empty", "assertions": {"files_exist": [], "commands": []}}
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(v_data), encoding="utf-8")
+        
+        passed, report = verify_spec(spec_dir)
+        assert passed is False, "Empty assertions must fail"
+        assert "zero assertions" in report.get("error", "").lower()
+        
+        passed_empty, _ = verify_spec(spec_dir, allow_empty=True)
+        assert passed_empty is True, "Must pass when allow_empty is explicit"
+
+
 if __name__ == "__main__":
     tests = [
         ("test_empty_dir_discovery", test_empty_dir_discovery),
         ("test_token_trimming_edge_case", test_token_trimming_edge_case),
         ("test_missing_spec_verification", test_missing_spec_verification),
         ("test_failing_assertion_verification", test_failing_assertion_verification),
+        ("test_empty_assertions_rejected", test_empty_assertions_rejected),
     ]
     failed = 0
     for name, fn in tests:

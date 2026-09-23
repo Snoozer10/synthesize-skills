@@ -133,7 +133,7 @@ def parse_manifests(files: list, root: Path) -> dict:
     return manifests
 
 
-def analyze_leverage(filepath: Path):
+def analyze_leverage(filepath: Path, target_root: Path = None):
     name = filepath.name.lower()
     parts = [p.lower() for p in filepath.parts]
     if (
@@ -183,7 +183,11 @@ def analyze_leverage(filepath: Path):
         return None
 
     leverage = round(loc / max(1, interface_count), 2)
-    return {"path": str(filepath), "leverage": leverage, "interface_count": interface_count, "loc": loc}
+    try:
+        rel_path = filepath.relative_to(target_root).as_posix() if target_root else filepath.as_posix()
+    except Exception:
+        rel_path = filepath.as_posix().replace("\\", "/")
+    return {"path": rel_path, "leverage": leverage, "interface_count": interface_count, "loc": loc}
 
 def index_repository(root_path: Path | str, max_depth: int = 3, scope: str = None, federate: bool = False, shard: str = None, grill: bool = False) -> dict:
     target_root = Path(root_path).resolve()
@@ -205,7 +209,7 @@ def index_repository(root_path: Path | str, max_depth: int = 3, scope: str = Non
 
     for f in files:
         if f.suffix in (".py", ".js", ".ts", ".jsx", ".tsx", ".go"):
-            res = analyze_leverage(f)
+            res = analyze_leverage(f, target_root)
             if res:
                 if res["leverage"] >= 8.0:
                     deep_modules.append(res)

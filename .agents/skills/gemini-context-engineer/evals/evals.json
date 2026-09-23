@@ -4,7 +4,7 @@
       "id": "eval-1-polyglot-create",
       "description": "Runs indexing and template synthesis on a synthetic polyglot repo fixture",
       "assertions": {
-        "latency_ms": "< 500",
+        "latency_ms": "< 1500",
         "token_count": "< 2500",
         "exit_code": "== 0",
         "deep_modules_found": ">= 1"

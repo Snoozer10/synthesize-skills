@@ -256,12 +256,45 @@ Python was not found; run without arguments to install from the Microsoft Store,
 **Cause:** In Git Bash on Windows, `python3` resolves to Windows Store placeholder shim `/c/Users/<user>/AppData/Local/Microsoft/WindowsApps/python3`.
 **Resolution:** Never rely on ambient `python3` in POSIX shell scripts on Windows. Write JSON and parse receipts in pure POSIX shell (`cat`, `sed`, `awk`, `grep`).
 
+### Windows cp1256 / Console Unicode Crashes
+**Error:**
+```
+UnicodeEncodeError: 'charmap' codec can't encode characters in position ...: character maps to <undefined>
+```
+**Cause:** Default Windows console code pages (such as cp1256 or cp1252) cannot encode Unicode box-drawing or special characters without explicit stream reconfiguring.
+**Resolution:**
+Reconfigure console streams on entry in CLI scripts:
+```python
+if sys.platform == "win32":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+```
+Always specify `encoding="utf-8", errors="replace"` when capturing subprocess output.
+
+### Anti-Premature Completion Loophole (Zero Assertions)
+**Error:** Verification command exits with code 0 ("PASS") even when no verification contract was defined or assertions list was empty (`assertions: []`).
+**Cause:** Defaulting to pass on empty assertions allows incomplete implementations to falsely pass CI/agent gates.
+**Resolution:** In `verify_spec.py`, enforce that total assertions evaluated (`files_checked + commands_run`) must be strictly greater than 0, unless `--allow-empty` is explicitly passed.
+
+### Git Worktree Hook Installation (EXDEV & Missing Hooks Dir)
+**Error:**
+```
+OSError: [Errno 18] Invalid cross-device link
+```
+**Cause:** Git worktrees store a pointer file at `.git` rather than a directory, and moving temp files across volumes or non-existent directories causes `EXDEV` or `FileNotFoundError`.
+**Resolution:** Resolve hook directory dynamically via `git rev-parse --git-dir` + `/hooks`, and write temporary atomic files directly in `target.parent`.
+
 ---
 
 ## Maintenance Notes
 
 | Error Pattern | Frequency | Last Seen | Status |
 |---------------|-----------|-----------|--------|
+| Anti-Premature Completion (Zero Assertions) | High | 2026-09-23 | Resolved |
+| Windows cp1256 / Console Unicode Crash | High | 2026-09-23 | Resolved |
+| Git Worktree EXDEV on Hook Install | Medium | 2026-09-23 | Resolved |
 | npm ENEEDAUTH | High | 2026-09-14 | Documented |
 | Tag force-push | Medium | 2026-09-14 | Documented |
 | OIDC id-token | Medium | 2026-09-14 | Documented |

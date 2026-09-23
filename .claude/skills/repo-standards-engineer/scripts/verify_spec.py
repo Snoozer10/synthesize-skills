@@ -9,20 +9,21 @@ import subprocess
 import sys
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
-def verify_spec(spec_dir: Path, json_output: bool = False) -> tuple[bool, dict]:
+
+def verify_spec(spec_dir: Path, json_output: bool = False, repo_root: Path = None, allow_empty: bool = False) -> tuple[bool, dict]:
     v_file = spec_dir / "VERIFICATION.json"
     if not v_file.is_file():
-        # Fallback to checking SPEC.md
-        s_file = spec_dir / "SPEC.md"
-        if not s_file.is_file():
-            return False, {"error": f"No SPEC.md or VERIFICATION.json found in {spec_dir}"}
-        return True, {"slug": spec_dir.name, "status": "no_formal_assertions"}
+        return False, {"slug": spec_dir.name, "status": "FAILED", "error": f"Missing required contract definition: {v_file}"}
 
     try:
         config = json.loads(v_file.read_text(encoding="utf-8"))
     except Exception as e:
-        return False, {"error": f"Failed to parse VERIFICATION.json: {e}"}
+        return False, {"slug": spec_dir.name, "status": "FAILED", "error": f"Failed to parse VERIFICATION.json: {e}"}
 
     slug = config.get("slug", spec_dir.name)
     assertions = config.get("assertions", {})
@@ -37,7 +38,22 @@ def verify_spec(spec_dir: Path, json_output: bool = False) -> tuple[bool, dict]:
         "command_failures": []
     }
 
-    repo_root = spec_dir.parents[1] if len(spec_dir.parents) >= 2 and (spec_dir.parents[1] / ".git").exists() else Path.cwd()
+    if not repo_root:
+        cur = spec_dir.resolve()
+        found_root = None
+        for _ in range(10):
+            if (cur / ".git").exists() or (cur / "VERSION").exists():
+                found_root = cur
+                break
+            if cur.parent == cur:
+                break
+            cur = cur.parent
+        if found_root:
+            repo_root = found_root
+        elif len(spec_dir.resolve().parents) >= 2 and spec_dir.resolve().parent.name == "specs":
+            repo_root = spec_dir.resolve().parents[1]
+        else:
+            repo_root = Path.cwd()
 
     # 1. Check file existence
     for rel_path in files_to_check:
@@ -54,6 +70,8 @@ def verify_spec(spec_dir: Path, json_output: bool = False) -> tuple[bool, dict]:
                 cwd=str(repo_root),
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
+                errors="replace",
                 timeout=60
             )
             if res.returncode != 0:
@@ -69,19 +87,28 @@ def verify_spec(spec_dir: Path, json_output: bool = False) -> tuple[bool, dict]:
                 "error": str(e)
             })
 
-    passed = (len(results["files_missing"]) == 0) and (len(results["command_failures"]) == 0)
-    results["status"] = "PASSED" if passed else "FAILED"
+    total_assertions = len(files_to_check) + len(commands_to_run)
+    if total_assertions == 0 and not allow_empty:
+        passed = False
+        results["status"] = "FAILED"
+        results["error"] = "Contract has zero assertions. Provide assertions or pass --allow-empty."
+    else:
+        passed = (len(results["files_missing"]) == 0) and (len(results["command_failures"]) == 0)
+        results["status"] = "PASSED" if passed else "FAILED"
     return passed, results
 
 
 def main():
     parser = argparse.ArgumentParser(description="Verify executable spec contract.")
     parser.add_argument("--spec", required=True, help="Path to spec directory (e.g. specs/user-auth)")
+    parser.add_argument("--root", default=None, help="Root directory for file/command assertions")
+    parser.add_argument("--allow-empty", action="store_true", help="Allow specs with zero assertions to pass")
     parser.add_argument("--json", action="store_true", help="Output JSON receipt")
     args = parser.parse_args()
 
     spec_dir = Path(args.spec).resolve()
-    passed, receipt = verify_spec(spec_dir, json_output=args.json)
+    repo_root = Path(args.root).resolve() if args.root else None
+    passed, receipt = verify_spec(spec_dir, json_output=args.json, repo_root=repo_root, allow_empty=args.allow_empty)
 
     if args.json:
         print(json.dumps(receipt, indent=2))

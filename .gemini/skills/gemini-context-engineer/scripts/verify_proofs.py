@@ -51,12 +51,16 @@ def parse_table_and_dag(content: str) -> dict:
 
 def update_status(content: str, task_id: str, new_status: str) -> str:
     lines = content.splitlines()
+    clean_target_id = task_id.strip().replace("`", "")
     for i, line in enumerate(lines):
-        if line.startswith("|") and f"`{task_id}`" in line.split("|")[1]:
-            parts = [p.strip() for p in line.strip("|").split("|")]
-            parts[2] = new_status
-            lines[i] = "| " + " | ".join(parts) + " |"
-            break
+        if line.startswith("|") and len(line.split("|")) > 2:
+            cell_id = line.split("|")[1].strip().replace("`", "")
+            if cell_id == clean_target_id:
+                parts = [p.strip() for p in line.strip("|").split("|")]
+                if len(parts) >= 3:
+                    parts[2] = new_status
+                    lines[i] = "| " + " | ".join(parts) + " |"
+                    break
     return "\n".join(lines) + "\n"
 
 
@@ -108,8 +112,10 @@ def main():
         if sys.platform == "win32":
             result = subprocess.run(proof_cmd, shell=True, timeout=args.timeout)
         else:
+            import shutil
+            sh_path = shutil.which("bash") or "/bin/sh"
             result = subprocess.run(
-                proof_cmd, shell=True, executable="/bin/bash", timeout=args.timeout
+                proof_cmd, shell=True, executable=sh_path, timeout=args.timeout
             )
     except subprocess.TimeoutExpired:
         sys.stderr.write(f"ERR_PROOF_TIMEOUT: {task_id} timed out after {args.timeout}s\n")
