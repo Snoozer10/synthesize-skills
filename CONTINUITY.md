@@ -46,7 +46,7 @@
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| WS-021 | Update Next Skill | 🔄 **AWAITING TARGET SELECTION** | User selects which skill to update |
+| WS-021 | Upgrade repo-standards-engineer (AST, Compliance, Rich Contracts) | 🔄 **PLAN CREATED / AWAITING APPROVAL** | User review of implementation plan |
 
 ---
 
@@ -54,6 +54,10 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
+| WS-021-EXEC | Execute Tasks 1-6 (AST, verify_spec, check_compliance, shape_spec, evals) | WS-021 Approval | Implementation |
+| WS-022 | Upgrade repo-blast-radius-sync | WS-021 Completion | Skill #2 |
+| WS-023 | Upgrade release-sync | WS-022 Completion | Skill #3 |
+| WS-024 | Upgrade skill-creator | WS-023 Completion | Skill #4 |
 | WS-018 | Rotate NPM_TOKEN secret | Dec 6, 2026 | Prevent CI publish auth failures on token expiry |
 
 ---
