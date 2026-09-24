@@ -298,3 +298,26 @@ By leveraging Python's built-in `ast` module combined with high-precision regex 
 | Pressure Test Suite | `python -m unittest tests/test_standards_engine_pressure.py -v` | All pressure scenarios PASS |
 | Skill Validation Gate | `python scripts/validate.py` | 24/24 PASS (0 errors, 0 warnings) |
 | Release Drift Gate | `python scripts/release_sync.py --check` | Exit code 0 (no drift) |
+
+---
+
+## 6. Multi-Skill Upgrade Roadmap & Next Steps
+
+This implementation plan for `repo-standards-engineer` represents **Phase 1** of our overarching canonical skill modernization roadmap. All skills authoring and maintenance in this repository adhere to the same rigorous engineering lifecycle:
+$$\text{Research} \longrightarrow \text{Audit \& Review} \longrightarrow \text{Architecture Spec} \longrightarrow \text{Subagent-Driven TDD} \longrightarrow \text{Pressure Testing} \longrightarrow \text{CI Release}$$
+
+### The 4-Skill Upgrade Sequence
+
+| Phase | Skill Name | Current Status | Key Modernization Focus | Trigger / Handoff |
+| :--- | :--- | :--- | :--- | :--- |
+| **Phase 1** | **`repo-standards-engineer`** | 🔄 **Active (This Plan)** | Multi-paradigm AST discovery (Pydantic/TS), rich verification contracts (`file_contains`, `json_matches`), compliance drift auditor (`check_compliance.py`), and `--from-standards` spec auto-wiring. | **Current Workstream (WS-021)** |
+| **Phase 2** | **`repo-blast-radius-sync`** | ⏳ **Next in Queue** | Multi-language cross-file dependency graph resolution, git diff hunk blast-radius tracking, orphaned caller & test detection, and staged parity enforcement. | Immediately upon completing Phase 1 |
+| **Phase 3** | **`release-sync`** | ⏳ **Queued (3rd)** | Automated release note drafting from conventional commits, automated GitHub PR description syncing, atomic multi-registry semver gate hardening, and hook hygiene. | Immediately upon completing Phase 2 |
+| **Phase 4** | **`skill-creator`** | ⏳ **Queued (4th)** | Automated pressure test suite scaffolding (`tests/test_<skill>_pressure.py`), host ecosystem compatibility matrix checker, and formal evals test harness generation. | Immediately upon completing Phase 3 |
+
+> [!IMPORTANT]
+> **Scope Invariant**: Only canonical skills authored in this repository (`.agents/skills/`) are in scope for this modernization initiative. External or third-party skills in `~/.gemini/skills/` remain untracked.
+
+### Immediate Next Step
+Upon final user approval of this updated plan, we immediately initiate execution of **Task 1 through Task 6** using **Subagent-Driven Development (SDD)** on an isolated feature branch: `feat/repo-standards-engineer-upgrade`.
+
