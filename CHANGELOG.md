@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-26
+
+> [!NOTE]
+> **Minor Feature Release**: Modernizes canonical skill `repo-standards-engineer` into an enterprise-grade multi-paradigm standards discovery, executable contract verification, and compliance governance engine. Adds AST detection for Pydantic models, dataclasses, TypedDict, and TypeScript interfaces/enums, rich semantic assertions (`file_contains`, `regex_matches`, `json_matches`, `ast_symbol_present`), standards compliance and drift checker (`check_compliance.py`), spec auto-scaffolding with `--from-standards`, and reverse symbol indexing (`index_standards.py`).
+
+### Added
+- **Multi-Paradigm AST & Pattern Discovery (`scripts/discover_standards.py`)**: Enhanced Python AST analysis to detect Pydantic `BaseModel`, `@dataclass`, `TypedDict`, custom `Exception` hierarchies with class error codes, and standard envelope return functions. Added non-comment TypeScript/JavaScript scanner for `interface`, `enum`, `type`, error codes, and ORM query patterns (`findMany`, `execute`).
+- **Rich Semantic Assertion Engine (`scripts/verify_spec.py`)**: Implemented native deterministic assertions eliminating reliance on brittle shell scripts: `file_contains`, `regex_matches`, `json_matches` (recursive dictionary/list subset matching), and `ast_symbol_present` (Python AST symbol walker). Enforced total assertion count > 0 unless `--allow-empty` is explicit.
+- **Standards Compliance & Drift Checker (`scripts/check_compliance.py`)**: New audit utility for files or git staged diffs (`--staged`). Enforces Rule 1: Error Code Governance (`UNDECLARED_ERROR_CODE`), Rule 2: Response Envelope Integrity (`MALFORMED_RESPONSE_ENVELOPE`), and Rule 3: Database & Query Method Governance (`PROHIBITED_DB_METHOD`).
+- **Standards-Driven Spec Auto-Scaffolding (`scripts/shape_spec.py`)**: Added `--from-standards` flag to automatically query repository standards and weave discovered response envelopes, error codes, and query methods into `SPEC.md` acceptance criteria and auto-inject compliance verification assertions into `VERIFICATION.json`. Added CLI options for rich assertions (`--assert-contains`, `--assert-regex`, `--assert-symbol`, `--assert-json`).
+- **Interactive Symbol Query & Reverse Indexing (`scripts/index_standards.py`)**: Multi-paradigm symbol indexer with dedicated `error_code_index`. Supports interactive reverse lookup via `--query <symbol>` and `--error-code <code_name>` with text and JSON outputs.
+- **End-to-End Pressure Test Suite (`tests/test_standards_engine_pressure.py`)**: 3 stressful pressure scenarios verifying polyglot repositories (Python + TypeScript), malformed syntax / binary resilience, and non-ASCII Unicode (Arabic, Chinese, Japanese, accents, emojis) on Windows console streams.
+
+### Changed
+- **Skill Specification Sync**: Updated `.agents/skills/repo-standards-engineer/SKILL.md` to document all new CLI tools and options, maintaining 100% validator compliance (0 errors, 0 warnings).
+- **Host Ecosystem Synchronization**: Recompiled native adapters (`scripts/compile_adapters.py`) and synchronized host skill installations across `.claude`, `.cursor`, `.gemini`, `.opencode`, `.codex`, and `.windsurf`.
+
+---
+
 ## [1.2.0] - 2026-09-24
 
 > [!NOTE]
