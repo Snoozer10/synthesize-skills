@@ -141,10 +141,91 @@ def test_spec_shaper_and_verification():
         assert "CONTRACT FAILED" in v_neg.stdout or "CONTRACT FAILED" in v_neg.stderr
 
 
+def test_pydantic_and_typed_ast_discovery():
+    """discover_standards.py must extract Pydantic/TypedDict envelopes, custom exceptions, TS enums/interfaces, and DB patterns."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "src"
+        src.mkdir(parents=True, exist_ok=True)
+        
+        # Python file with Pydantic BaseModel, Dataclass, TypedDict, and Custom Exception
+        (src / "models.py").write_text("""\
+from dataclasses import dataclass
+from typing import TypedDict, Optional
+from pydantic import BaseModel
+
+class CustomAppError(Exception):
+    code = "ERR_CUSTOM_EXCEPTION"
+    default_code = "ERR_DEFAULT_EXCEPTION"
+
+@dataclass
+class ItemDto:
+    id: str
+    name: str
+
+class MetaInfo(TypedDict):
+    version: str
+    timestamp: int
+
+class ApiResponseModel(BaseModel):
+    status: str
+    data: Optional[dict] = None
+    error: Optional[str] = None
+    meta: Optional[MetaInfo] = None
+""", encoding="utf-8")
+
+        # TypeScript file with enum, interface response envelope, and DB query pattern
+        (src / "service.ts").write_text("""\
+export enum ErrorCode {
+    TS_UNAUTHORIZED = "ERR_TS_UNAUTHORIZED",
+    TS_NOT_FOUND = "ERR_TS_NOT_FOUND",
+}
+
+export interface ApiResponse<T> {
+    status: "success" | "error";
+    data: T;
+    error?: string;
+    meta?: Record<string, any>;
+}
+
+export class UserService {
+    async getUsers(db: any) {
+        return await db.findMany();
+    }
+}
+""", encoding="utf-8")
+
+        res = _run(tmp, DISCOVER_PY, ["--json"])
+        assert res.returncode == 0, f"Expected exit 0, got {res.returncode}: {res.stderr}"
+        data = json.loads(res.stdout)
+        
+        # Verify error codes
+        assert "ERR_CUSTOM_EXCEPTION" in data["error_codes"], f"Must detect ERR_CUSTOM_EXCEPTION in {data['error_codes']}"
+        assert "ERR_DEFAULT_EXCEPTION" in data["error_codes"], f"Must detect ERR_DEFAULT_EXCEPTION in {data['error_codes']}"
+        assert "ERR_TS_UNAUTHORIZED" in data["error_codes"], f"Must detect ERR_TS_UNAUTHORIZED in {data['error_codes']}"
+        assert "ERR_TS_NOT_FOUND" in data["error_codes"], f"Must detect ERR_TS_NOT_FOUND in {data['error_codes']}"
+        
+        # Verify response envelope keys
+        envelope_keys = set(data["response_envelope"].keys())
+        for key in ("status", "data", "error", "meta"):
+            assert key in envelope_keys, f"Response envelope missing '{key}': {envelope_keys}"
+            
+        # Verify DB query pattern
+        assert "findMany" in data["database_patterns"], f"Must detect findMany in {data['database_patterns']}"
+        
+        # Verify caching
+        assert "cache_sha256" in data, "Must include cache_sha256"
+        res2 = _run(tmp, DISCOVER_PY, ["--json"])
+        assert res2.returncode == 0
+        data2 = json.loads(res2.stdout)
+        assert data2["cache_sha256"] == data["cache_sha256"], "Cache hash must match"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in [
         ("test_standards_discovery_ast", test_standards_discovery_ast),
+        ("test_pydantic_and_typed_ast_discovery", test_pydantic_and_typed_ast_discovery),
         ("test_token_bounded_injection", test_token_bounded_injection),
         ("test_spec_shaper_and_verification", test_spec_shaper_and_verification),
     ]:
@@ -158,3 +239,4 @@ if __name__ == "__main__":
             print(f"FAIL: {name}: {e}")
             failed += 1
     sys.exit(1 if failed else 0)
+
