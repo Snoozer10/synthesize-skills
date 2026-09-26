@@ -221,6 +221,140 @@ export class UserService {
         assert data2["cache_sha256"] == data["cache_sha256"], "Cache hash must match"
 
 
+def test_rich_semantic_contract_assertions():
+    """verify_spec.py must execute rich semantic assertions (file_contains, regex_matches, json_matches, ast_symbol_present)."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        
+        # 1. Setup sample files
+        (tmp / "sample.txt").write_text("Hello World! This is a test file for rich semantic assertions.", encoding="utf-8")
+        (tmp / "sample.json").write_text(json.dumps({
+            "status": "success",
+            "data": {
+                "count": 10,
+                "items": ["a"]
+            }
+        }), encoding="utf-8")
+        (tmp / "sample.py").write_text("""\
+class UserDto:
+    pass
+
+async def fetch_user(user_id: str):
+    return {"id": user_id}
+
+MAX_RETRIES = 3
+""", encoding="utf-8")
+
+        spec_dir = tmp / "specs" / "rich-contract"
+        spec_dir.mkdir(parents=True, exist_ok=True)
+
+        # 2. Positive case: all assertions match
+        positive_contract = {
+            "slug": "rich-contract",
+            "title": "Rich Semantic Verification Contract",
+            "created_at": "2026-09-24",
+            "assertions": {
+                "files_exist": ["sample.txt", "sample.json", "sample.py"],
+                "file_contains": [
+                    {"file": "sample.txt", "contains": ["Hello World", "rich semantic assertions"]}
+                ],
+                "regex_matches": [
+                    {"file": "sample.txt", "pattern": r"Hello\s+World.*test\s+file"}
+                ],
+                "json_matches": [
+                    {"file": "sample.json", "subset": {"status": "success", "data": {"count": 10}}}
+                ],
+                "ast_symbol_present": [
+                    {"file": "sample.py", "name": "UserDto", "type": "class"},
+                    {"file": "sample.py", "name": "fetch_user", "type": "function"},
+                    {"file": "sample.py", "name": "MAX_RETRIES", "type": "variable"}
+                ]
+            }
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(positive_contract, indent=2), encoding="utf-8")
+
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 0, f"Expected positive contract to pass (exit 0), got {res.returncode}: {res.stderr}\n{res.stdout}"
+        data = json.loads(res.stdout)
+        assert data["status"] == "PASSED", f"Expected PASSED, got {data['status']}"
+        assert data["files_checked"] == 3
+        assert data["assertions_checked"] == 6
+        assert len(data["assertion_failures"]) == 0
+
+        # Also verify non-json stdout formatting
+        res_text = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir)])
+        assert res_text.returncode == 0
+        assert "CONTRACT PASSED: rich-contract" in res_text.stdout
+        assert "Verified 3 files present." in res_text.stdout
+
+        # 3. Negative cases for each assertion type
+        
+        # 3a. file_contains failure
+        neg_contains = dict(positive_contract)
+        neg_contains["assertions"] = {
+            "file_contains": [{"file": "sample.txt", "contains": ["NONEXISTENT_PHRASE"]}]
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(neg_contains), encoding="utf-8")
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 1, "Expected exit 1 on file_contains failure"
+        data = json.loads(res.stdout)
+        assert data["status"] == "FAILED"
+        assert len(data["assertion_failures"]) == 1
+        assert data["assertion_failures"][0]["type"] == "file_contains"
+
+        # 3b. regex_matches failure
+        neg_regex = dict(positive_contract)
+        neg_regex["assertions"] = {
+            "regex_matches": [{"file": "sample.txt", "pattern": r"^Goodbye\s+World"}]
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(neg_regex), encoding="utf-8")
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 1, "Expected exit 1 on regex_matches failure"
+        data = json.loads(res.stdout)
+        assert data["status"] == "FAILED"
+        assert len(data["assertion_failures"]) == 1
+        assert data["assertion_failures"][0]["type"] == "regex_matches"
+
+        # 3c. json_matches failure (subset mismatch)
+        neg_json = dict(positive_contract)
+        neg_json["assertions"] = {
+            "json_matches": [{"file": "sample.json", "subset": {"data": {"count": 999}}}]
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(neg_json), encoding="utf-8")
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 1, "Expected exit 1 on json_matches failure"
+        data = json.loads(res.stdout)
+        assert data["status"] == "FAILED"
+        assert len(data["assertion_failures"]) == 1
+        assert data["assertion_failures"][0]["type"] == "json_matches"
+
+        # 3d. ast_symbol_present failure (missing symbol)
+        neg_ast = dict(positive_contract)
+        neg_ast["assertions"] = {
+            "ast_symbol_present": [{"file": "sample.py", "name": "MissingClass", "type": "class"}]
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(neg_ast), encoding="utf-8")
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 1, "Expected exit 1 on ast_symbol_present failure"
+        data = json.loads(res.stdout)
+        assert data["status"] == "FAILED"
+        assert len(data["assertion_failures"]) == 1
+        assert data["assertion_failures"][0]["type"] == "ast_symbol_present"
+
+        # 3e. ast_symbol_present failure (wrong type)
+        neg_ast_type = dict(positive_contract)
+        neg_ast_type["assertions"] = {
+            "ast_symbol_present": [{"file": "sample.py", "name": "UserDto", "type": "function"}]
+        }
+        (spec_dir / "VERIFICATION.json").write_text(json.dumps(neg_ast_type), encoding="utf-8")
+        res = _run(tmp, VERIFY_SPEC_PY, ["--spec", str(spec_dir), "--json"])
+        assert res.returncode == 1, "Expected exit 1 on ast_symbol_present wrong type"
+        data = json.loads(res.stdout)
+        assert data["status"] == "FAILED"
+        assert len(data["assertion_failures"]) == 1
+        assert data["assertion_failures"][0]["type"] == "ast_symbol_present"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in [
@@ -228,6 +362,7 @@ if __name__ == "__main__":
         ("test_pydantic_and_typed_ast_discovery", test_pydantic_and_typed_ast_discovery),
         ("test_token_bounded_injection", test_token_bounded_injection),
         ("test_spec_shaper_and_verification", test_spec_shaper_and_verification),
+        ("test_rich_semantic_contract_assertions", test_rich_semantic_contract_assertions),
     ]:
         try:
             fn()
