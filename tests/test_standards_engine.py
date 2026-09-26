@@ -18,6 +18,7 @@ INJECT_PY = REPO_ROOT / "scripts" / "inject_standards.py"
 SHAPE_SPEC_PY = REPO_ROOT / "scripts" / "shape_spec.py"
 VERIFY_SPEC_PY = REPO_ROOT / "scripts" / "verify_spec.py"
 CHECK_COMPLIANCE_PY = REPO_ROOT / "scripts" / "check_compliance.py"
+INDEX_PY = REPO_ROOT / "scripts" / "index_standards.py"
 
 
 def _run(cwd: Path, script: Path, args=None):
@@ -573,6 +574,165 @@ def run_query(repo):
         assert "python scripts/check_compliance.py --files src/app.py" in cli_assertions["commands"], "Must include compliance command in CLI spec"
 
 
+def test_index_standards_symbol_query():
+    """index_standards.py must index multi-paradigm symbols and support interactive symbol/error query via API and CLI."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "src"
+        src.mkdir(parents=True, exist_ok=True)
+
+        # Python file with multiple symbol kinds: Enum, Exception, Dataclass, BaseModel, Function, AsyncFunction, Constant
+        (src / "service.py").write_text("""\
+from dataclasses import dataclass
+from enum import Enum
+from pydantic import BaseModel
+
+class AppErrorCode(str, Enum):
+    INVALID_PAYLOAD = "ERR_INVALID_PAYLOAD"
+    UNAUTHORIZED = "ERR_UNAUTHORIZED"
+
+class AppValidationError(Exception):
+    code = "ERR_VALIDATION"
+
+@dataclass
+class UserProfile:
+    id: str
+    name: str
+
+class UserModel(BaseModel):
+    id: str
+
+def calculate_metrics(count: int) -> int:
+    return count * 2
+
+async def fetch_user(user_id: str):
+    return {"id": user_id}
+
+MAX_RETRIES = 5
+""", encoding="utf-8")
+
+        # TypeScript file with interface, enum, and type
+        (src / "types.ts").write_text("""\
+export enum ApiErrorCode {
+    NOT_FOUND = "ERR_NOT_FOUND",
+    TIMEOUT = "ERR_TIMEOUT",
+}
+
+export interface ApiResponse<T> {
+    status: "success" | "error";
+    data: T;
+}
+
+export type UserToken = string;
+""", encoding="utf-8")
+
+        # 1. Programmatic API tests
+        if str(REPO_ROOT / "scripts") not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT / "scripts"))
+        from index_standards import (
+            build_standards_index,
+            find_symbol_definition,
+            find_error_code_definition,
+        )
+
+        idx = build_standards_index(tmp, force=True)
+        assert idx["indexed_files"] >= 2, f"Expected at least 2 indexed files, got {idx['indexed_files']}"
+        assert "cache_sha256" in idx, "Index must contain cache_sha256"
+
+        # Verify symbol lookups
+        fn_defs = find_symbol_definition(idx, "calculate_metrics")
+        assert len(fn_defs) == 1, f"Expected 1 definition for calculate_metrics, got {fn_defs}"
+        assert fn_defs[0]["name"] == "calculate_metrics"
+        assert fn_defs[0]["kind"] == "function"
+        assert fn_defs[0]["file"] == "src/service.py"
+        assert fn_defs[0]["line"] > 0
+
+        async_defs = find_symbol_definition(idx, "fetch_user")
+        assert len(async_defs) == 1
+        assert async_defs[0]["kind"] == "async_function"
+
+        dc_defs = find_symbol_definition(idx, "UserProfile")
+        assert len(dc_defs) == 1
+        assert dc_defs[0]["kind"] == "dataclass"
+
+        pydantic_defs = find_symbol_definition(idx, "UserModel")
+        assert len(pydantic_defs) == 1
+        assert pydantic_defs[0]["kind"] == "pydantic_model"
+
+        exc_defs = find_symbol_definition(idx, "AppValidationError")
+        assert len(exc_defs) == 1
+        assert exc_defs[0]["kind"] == "exception"
+
+        const_defs = find_symbol_definition(idx, "MAX_RETRIES")
+        assert len(const_defs) == 1
+        assert const_defs[0]["kind"] == "constant"
+
+        iface_defs = find_symbol_definition(idx, "ApiResponse")
+        assert len(iface_defs) == 1
+        assert iface_defs[0]["kind"] == "interface"
+        assert iface_defs[0]["file"] == "src/types.ts"
+
+        enum_defs = find_symbol_definition(idx, "ApiErrorCode")
+        assert len(enum_defs) == 1
+        assert enum_defs[0]["kind"] == "enum"
+
+        type_defs = find_symbol_definition(idx, "UserToken")
+        assert len(type_defs) == 1
+        assert type_defs[0]["kind"] == "type"
+
+        # Non-existent symbol
+        assert find_symbol_definition(idx, "NonExistent") == []
+
+        # Verify error code lookups
+        err_defs = find_error_code_definition(idx, "ERR_INVALID_PAYLOAD")
+        assert len(err_defs) >= 1, f"Expected definition for ERR_INVALID_PAYLOAD, got {err_defs}"
+        assert err_defs[0]["error_code"] == "ERR_INVALID_PAYLOAD"
+        assert err_defs[0]["file"] == "src/service.py"
+        assert err_defs[0]["line"] > 0
+        assert "ERR_INVALID_PAYLOAD" in err_defs[0]["context"]
+
+        ts_err_defs = find_error_code_definition(idx, "ERR_NOT_FOUND")
+        assert len(ts_err_defs) >= 1
+        assert ts_err_defs[0]["file"] == "src/types.ts"
+
+        # Non-existent error code
+        assert find_error_code_definition(idx, "ERR_DOES_NOT_EXIST") == []
+
+        # 2. CLI tests
+        # Symbol query (text)
+        res_sym_text = _run(tmp, INDEX_PY, ["--query", "calculate_metrics"])
+        assert res_sym_text.returncode == 0, f"CLI symbol text query failed: {res_sym_text.stderr}"
+        assert "calculate_metrics" in res_sym_text.stdout
+        assert "src/service.py" in res_sym_text.stdout
+
+        # Symbol query (JSON)
+        res_sym_json = _run(tmp, INDEX_PY, ["--query", "calculate_metrics", "--json"])
+        assert res_sym_json.returncode == 0, f"CLI symbol json query failed: {res_sym_json.stderr}"
+        sym_json_data = json.loads(res_sym_json.stdout)
+        assert isinstance(sym_json_data, list)
+        assert any(d["name"] == "calculate_metrics" and d["kind"] == "function" for d in sym_json_data)
+
+        # Error code query (text)
+        res_err_text = _run(tmp, INDEX_PY, ["--error-code", "ERR_INVALID_PAYLOAD"])
+        assert res_err_text.returncode == 0, f"CLI error text query failed: {res_err_text.stderr}"
+        assert "ERR_INVALID_PAYLOAD" in res_err_text.stdout
+        assert "src/service.py" in res_err_text.stdout
+
+        # Error code query (JSON)
+        res_err_json = _run(tmp, INDEX_PY, ["--error-code", "ERR_INVALID_PAYLOAD", "--json"])
+        assert res_err_json.returncode == 0, f"CLI error json query failed: {res_err_json.stderr}"
+        err_json_data = json.loads(res_err_json.stdout)
+        assert isinstance(err_json_data, list)
+        assert any(d["error_code"] == "ERR_INVALID_PAYLOAD" for d in err_json_data)
+
+        # Negative CLI queries
+        res_missing_sym = _run(tmp, INDEX_PY, ["--query", "NonExistentSymbol"])
+        assert res_missing_sym.returncode == 1, "CLI missing symbol query must exit 1"
+
+        res_missing_err = _run(tmp, INDEX_PY, ["--error-code", "ERR_DOES_NOT_EXIST"])
+        assert res_missing_err.returncode == 1, "CLI missing error code query must exit 1"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in [
@@ -583,6 +743,7 @@ if __name__ == "__main__":
         ("test_rich_semantic_contract_assertions", test_rich_semantic_contract_assertions),
         ("test_standards_compliance_checker", test_standards_compliance_checker),
         ("test_shape_spec_from_standards", test_shape_spec_from_standards),
+        ("test_index_standards_symbol_query", test_index_standards_symbol_query),
     ]:
         try:
             fn()
