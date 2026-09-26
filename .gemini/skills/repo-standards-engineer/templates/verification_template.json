@@ -6,6 +6,45 @@
     "files_exist": [
       "src/feature.py"
     ],
+    "file_contains": [
+      {
+        "file": "src/feature.py",
+        "contains": [
+          "class FeatureService:"
+        ]
+      }
+    ],
+    "regex_matches": [
+      {
+        "file": "src/feature.py",
+        "pattern": "def execute\\(self.*\\):"
+      }
+    ],
+    "json_matches": [
+      {
+        "file": "config.json",
+        "subset": {
+          "status": "active"
+        }
+      }
+    ],
+    "ast_symbol_present": [
+      {
+        "file": "src/feature.py",
+        "name": "FeatureService",
+        "type": "class"
+      },
+      {
+        "file": "src/feature.py",
+        "name": "execute",
+        "type": "function"
+      },
+      {
+        "file": "src/feature.py",
+        "name": "DEFAULT_CONFIG",
+        "type": "variable"
+      }
+    ],
     "commands": [
       "python -m unittest tests/test_feature.py"
     ]
