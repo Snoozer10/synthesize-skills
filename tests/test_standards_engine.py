@@ -17,6 +17,7 @@ DISCOVER_PY = REPO_ROOT / "scripts" / "discover_standards.py"
 INJECT_PY = REPO_ROOT / "scripts" / "inject_standards.py"
 SHAPE_SPEC_PY = REPO_ROOT / "scripts" / "shape_spec.py"
 VERIFY_SPEC_PY = REPO_ROOT / "scripts" / "verify_spec.py"
+CHECK_COMPLIANCE_PY = REPO_ROOT / "scripts" / "check_compliance.py"
 
 
 def _run(cwd: Path, script: Path, args=None):
@@ -355,6 +356,136 @@ MAX_RETRIES = 3
         assert data["assertion_failures"][0]["type"] == "ast_symbol_present"
 
 
+def test_standards_compliance_checker():
+    """check_compliance.py must verify error codes, response envelopes, and DB patterns."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "src"
+        src.mkdir(parents=True, exist_ok=True)
+
+        # 1. Establish standards in baseline file
+        (src / "base.py").write_text("""\
+from enum import Enum
+
+class ErrorCode(str, Enum):
+    VALID_A = "ERR_VALID_A"
+    VALID_B = "ERR_VALID_B"
+
+def respond(data=None, error=None):
+    return {
+        "status": "error" if error else "success",
+        "data": data,
+        "error": error
+    }
+
+class Repo:
+    def execute(self, query):
+        pass
+
+def run_query(repo):
+    return repo.execute("SELECT 1")
+""", encoding="utf-8")
+
+        # Discover standards to create standards_cache.json
+        res_disc = _run(tmp, DISCOVER_PY, ["--json"])
+        assert res_disc.returncode == 0, f"Discovery failed: {res_disc.stderr}"
+        standards = json.loads(res_disc.stdout)
+        assert "ERR_VALID_A" in standards["error_codes"]
+        assert "status" in standards["response_envelope"]
+        assert "execute" in standards["database_patterns"]
+
+        # 2. Compliant file passes
+        (src / "compliant.py").write_text("""\
+def get_user():
+    return {
+        "status": "success",
+        "data": {"id": 1, "name": "Alice"}
+    }
+
+def fail_user():
+    return {
+        "status": "error",
+        "error": "ERR_VALID_A"
+    }
+""", encoding="utf-8")
+
+        res_comp = _run(tmp, CHECK_COMPLIANCE_PY, ["--files", "src/compliant.py", "--json"])
+        assert res_comp.returncode == 0, f"Compliant file failed with exit {res_comp.returncode}: {res_comp.stdout} {res_comp.stderr}"
+        data_comp = json.loads(res_comp.stdout)
+        assert data_comp["compliant"] is True
+        assert data_comp["violations_count"] == 0
+        assert len(data_comp["violations"]) == 0
+
+        # Also verify programmatic check_compliance invocation
+        if str(REPO_ROOT / "scripts") not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT / "scripts"))
+        from check_compliance import check_compliance
+        is_ok, report = check_compliance(tmp, target_files=[src / "compliant.py"])
+        assert is_ok is True
+        assert report["compliant"] is True
+        assert report["violations_count"] == 0
+
+        # 3. Undeclared error code violation
+        (src / "alien_error.py").write_text("""\
+def raise_alien():
+    return {
+        "status": "error",
+        "error": "ERR_ALIEN_CODE"
+    }
+""", encoding="utf-8")
+
+        res_alien = _run(tmp, CHECK_COMPLIANCE_PY, ["--files", "src/alien_error.py", "--json"])
+        assert res_alien.returncode == 1, f"Expected exit 1 for undeclared error code, got {res_alien.returncode}"
+        data_alien = json.loads(res_alien.stdout)
+        assert data_alien["compliant"] is False
+        assert data_alien["violations_count"] >= 1
+        rules = [v["rule"] for v in data_alien["violations"]]
+        assert "UNDECLARED_ERROR_CODE" in rules
+        violation = next(v for v in data_alien["violations"] if v["rule"] == "UNDECLARED_ERROR_CODE")
+        assert "ERR_ALIEN_CODE" in violation["message"]
+
+        # 4. Malformed response envelope violation (conflicting key: result)
+        (src / "malformed_envelope.py").write_text("""\
+def bad_envelope():
+    return {
+        "result": "ok"
+    }
+""", encoding="utf-8")
+
+        res_env = _run(tmp, CHECK_COMPLIANCE_PY, ["--files", "src/malformed_envelope.py", "--json"])
+        assert res_env.returncode == 1, f"Expected exit 1 for malformed envelope, got {res_env.returncode}"
+        data_env = json.loads(res_env.stdout)
+        assert data_env["compliant"] is False
+        assert any(v["rule"] == "MALFORMED_RESPONSE_ENVELOPE" for v in data_env["violations"])
+
+        # 5. Malformed response envelope violation (invalid status value)
+        (src / "bad_status.py").write_text("""\
+def bad_status():
+    return {
+        "status": "pending",
+        "data": None
+    }
+""", encoding="utf-8")
+
+        res_status = _run(tmp, CHECK_COMPLIANCE_PY, ["--files", "src/bad_status.py", "--json"])
+        assert res_status.returncode == 1, f"Expected exit 1 for invalid status value, got {res_status.returncode}"
+        data_status = json.loads(res_status.stdout)
+        assert data_status["compliant"] is False
+        assert any(v["rule"] == "MALFORMED_RESPONSE_ENVELOPE" for v in data_status["violations"])
+
+        # 6. Prohibited DB method violation
+        (src / "bad_db.py").write_text("""\
+def direct_query(cursor):
+    return cursor.execute_sql("SELECT 1")
+""", encoding="utf-8")
+
+        res_db = _run(tmp, CHECK_COMPLIANCE_PY, ["--files", "src/bad_db.py", "--json"])
+        assert res_db.returncode == 1, f"Expected exit 1 for prohibited DB method, got {res_db.returncode}"
+        data_db = json.loads(res_db.stdout)
+        assert data_db["compliant"] is False
+        assert any(v["rule"] == "PROHIBITED_DB_METHOD" for v in data_db["violations"])
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in [
@@ -363,6 +494,7 @@ if __name__ == "__main__":
         ("test_token_bounded_injection", test_token_bounded_injection),
         ("test_spec_shaper_and_verification", test_spec_shaper_and_verification),
         ("test_rich_semantic_contract_assertions", test_rich_semantic_contract_assertions),
+        ("test_standards_compliance_checker", test_standards_compliance_checker),
     ]:
         try:
             fn()
