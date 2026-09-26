@@ -39,6 +39,7 @@
 | WS-017 | Skills Collision, Cross-Impact Audit & Isolation Architecture | 2026-09-23 | Selective install (-Skill/--skill) in PowerShell & POSIX; non-destructive hook chaining; disambiguated cognitive triggers; tests/test_skill_isolation_and_portability.py 4/4 PASS; all 9 test suites PASS |
 | WS-019 | Context Decomposition, Sharding & Non-Destructive Federation | 2026-09-24 | 59/59 unit tests PASS, 5/5 pressure tests PASS, 7/7 evals PASS, validate.py 0 errors/0 warnings |
 | WS-020 | Release v1.2.0 Dual Registry Publish & GitHub Release | 2026-09-24 | npmjs.org @1.2.0, GitHub Packages @1.2.0, GitHub Release v1.2.0 live with SLSA provenance |
+| WS-021 | Upgrade repo-standards-engineer (AST, Compliance, Rich Contracts) | 2026-09-26 | PR #2 CI pass; 8/8 unit tests PASS, 3/3 pressure tests PASS, 4/4 isolation tests PASS, validate.py 0 errors/0 warnings |
 
 ---
 
@@ -46,7 +47,7 @@
 
 | ID | Workstream | Status | Blocker |
 |----|------------|--------|---------|
-| WS-021 | Upgrade repo-standards-engineer (AST, Compliance, Rich Contracts) | 🔄 **PLAN CREATED / AWAITING APPROVAL** | User review of implementation plan |
+| WS-021-MERGE | Merge PR #2 & Tag Release / Prepare Skill #2 | 🔄 **PR OPEN & ALL CI PASS** | User review / merge decision |
 
 ---
 
@@ -54,7 +55,6 @@
 
 | ID | Workstream | Dependencies | Target |
 |----|------------|--------------|--------|
-| WS-021-EXEC | Execute Tasks 1-6 (AST, verify_spec, check_compliance, shape_spec, evals) | WS-021 Approval | Implementation |
 | WS-022 | Upgrade repo-blast-radius-sync | WS-021 Completion | Skill #2 |
 | WS-023 | Upgrade release-sync | WS-022 Completion | Skill #3 |
 | WS-024 | Upgrade skill-creator | WS-023 Completion | Skill #4 |
