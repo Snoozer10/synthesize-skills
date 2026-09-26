@@ -486,6 +486,93 @@ def direct_query(cursor):
         assert any(v["rule"] == "PROHIBITED_DB_METHOD" for v in data_db["violations"])
 
 
+def test_shape_spec_from_standards():
+    """shape_spec.py must auto-wire standards (--from-standards) and support rich semantic assertion flags."""
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "src"
+        src.mkdir(parents=True, exist_ok=True)
+
+        # 1. Establish mock repository with standards (response envelope, error codes, DB patterns)
+        (src / "app.py").write_text("""\
+from enum import Enum
+
+class AppError(str, Enum):
+    INVALID_INPUT = "ERR_INVALID_INPUT"
+    UNAUTHORIZED = "ERR_UNAUTHORIZED"
+
+def make_response(data=None, error=None):
+    return {
+        "status": "error" if error else "success",
+        "data": data,
+        "error": error
+    }
+
+class UserRepository:
+    def execute(self, query):
+        pass
+    def query(self, sql):
+        pass
+
+def run_query(repo):
+    return repo.execute("SELECT 1")
+""", encoding="utf-8")
+
+        # 2. Test programmatic API with from_standards=True and assert_files
+        if str(REPO_ROOT / "scripts") not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT / "scripts"))
+        from shape_spec import shape_spec
+
+        spec_dir = shape_spec(
+            root=tmp,
+            slug="user-feature",
+            title="User Feature Implementation",
+            assert_files=["src/app.py"],
+            from_standards=True
+        )
+
+        spec_md = (spec_dir / "SPEC.md").read_text(encoding="utf-8")
+        assert "Code adheres to discovered response envelope" in spec_md, "SPEC.md must contain response envelope criterion"
+        assert "Error handling adheres to declared error code standards" in spec_md, "SPEC.md must contain error code criterion"
+        assert "Database interactions follow approved query methods" in spec_md, "SPEC.md must contain database patterns criterion"
+        assert "Passes repository standards compliance check without drift." in spec_md, "SPEC.md must contain general compliance criterion"
+
+        v_data = json.loads((spec_dir / "VERIFICATION.json").read_text(encoding="utf-8"))
+        assertions = v_data["assertions"]
+        assert "python scripts/check_compliance.py --files src/app.py" in assertions["commands"], "VERIFICATION.json commands must contain compliance check"
+        assert "files_exist" in assertions
+        assert "file_contains" in assertions
+        assert "regex_matches" in assertions
+        assert "json_matches" in assertions
+        assert "ast_symbol_present" in assertions
+
+        # 3. Test CLI execution with --from-standards, --assert-contains, --assert-symbol, --assert-regex
+        (tmp / "config.json").write_text(json.dumps({"version": 1, "enabled": True}), encoding="utf-8")
+
+        res = _run(tmp, SHAPE_SPEC_PY, [
+            "--slug", "cli-scaffolded",
+            "--title", "CLI Scaffolded Feature",
+            "--from-standards",
+            "--assert-file", "src/app.py",
+            "--assert-contains", "src/app.py:class UserRepository",
+            "--assert-symbol", "src/app.py:UserRepository:ClassDef",
+            "--assert-regex", r"src/app.py:class\s+UserRepository",
+            "--assert-json", 'config.json:{"enabled": true}'
+        ])
+        assert res.returncode == 0, f"CLI shape_spec failed: {res.stderr}\n{res.stdout}"
+
+        cli_spec_dir = tmp / "specs" / "cli-scaffolded"
+        assert (cli_spec_dir / "SPEC.md").is_file()
+        cli_v_data = json.loads((cli_spec_dir / "VERIFICATION.json").read_text(encoding="utf-8"))
+        cli_assertions = cli_v_data["assertions"]
+
+        assert any(any("UserRepository" in text for text in item.get("contains", [])) for item in cli_assertions["file_contains"]), "Must populate file_contains"
+        assert any(item["name"] == "UserRepository" for item in cli_assertions["ast_symbol_present"]), "Must populate ast_symbol_present"
+        assert any("UserRepository" in item["pattern"] for item in cli_assertions["regex_matches"]), "Must populate regex_matches"
+        assert any(item["subset"] == {"enabled": True} for item in cli_assertions["json_matches"]), "Must populate json_matches"
+        assert "python scripts/check_compliance.py --files src/app.py" in cli_assertions["commands"], "Must include compliance command in CLI spec"
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in [
@@ -495,6 +582,7 @@ if __name__ == "__main__":
         ("test_spec_shaper_and_verification", test_spec_shaper_and_verification),
         ("test_rich_semantic_contract_assertions", test_rich_semantic_contract_assertions),
         ("test_standards_compliance_checker", test_standards_compliance_checker),
+        ("test_shape_spec_from_standards", test_shape_spec_from_standards),
     ]:
         try:
             fn()
@@ -506,4 +594,5 @@ if __name__ == "__main__":
             print(f"FAIL: {name}: {e}")
             failed += 1
     sys.exit(1 if failed else 0)
+
 
